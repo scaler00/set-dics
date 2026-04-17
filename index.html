@@ -1,0 +1,2426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Python Sets &amp; Dictionaries — Interactive Lesson</title>
+<style>
+/* =====================================================================
+   EDITORIAL — Master Theme
+   ---------------------------------------------------------------------
+   Aesthetic direction : editorial (Linear × Vercel · cool slate)
+   Font pairing        : Fraunces (italic display serif)  ·  Geist (body)
+                         ·  Geist Mono (code)
+   Primary palette     : #0e1014 slate bg · #e8ecf2 ink · #7c5cff indigo accent
+   Light mode          : #eef1f6 mist · #0f172a slate · #5b3fd6 indigo
+   Secondary tokens    : #34d399 success · #f43f5e rose · #38bdf8 sky
+                         · #c084fc violet · #fbbf24 gold
+   ===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600;1,9..144,700;1,9..144,800&family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap');
+
+/* ----------  DESIGN TOKENS  ---------- */
+:root {
+  /* palette — DARK (default) · cool slate + electric indigo */
+  --bg:            #0e1014;     /* deep slate, very slight blue */
+  --bg-1:          #161922;     /* card surface */
+  --bg-2:          #1d212c;     /* raised surface */
+  --bg-3:          #262b38;     /* chip / badge bg */
+  --line:          rgba(148,163,184,.10);
+  --line-2:        rgba(148,163,184,.20);
+  --line-strong:   rgba(148,163,184,.36);
+
+  --fg:            #e8ecf2;     /* cool white */
+  --fg-1:          #c7ceda;
+  --fg-2:          #9098a6;
+  --fg-3:          #6b7282;
+  --fg-4:          #4a5061;
+
+  --accent:        #7c5cff;     /* electric indigo */
+  --accent-hi:     #9a80ff;
+  --accent-lo:     #5a3ed9;
+  --success:       #34d399;     /* emerald */
+  --danger:        #f43f5e;     /* rose */
+  --info:          #38bdf8;     /* sky */
+  --violet:        #c084fc;
+  --gold:          #fbbf24;
+
+  /* spacing — 8px grid */
+  --s-0: 2px;  --s-1: 4px;   --s-2: 8px;   --s-3: 12px;
+  --s-4: 16px; --s-5: 24px;  --s-6: 32px;  --s-7: 48px;
+  --s-8: 64px; --s-9: 96px;
+
+  /* type */
+  --f-display: 'Fraunces', ui-serif, Georgia, serif;
+  --f-body:    'Geist', ui-sans-serif, system-ui, sans-serif;
+  --f-mono:    'Geist Mono', ui-monospace, 'JetBrains Mono', monospace;
+
+  --t-xs:  clamp(11px, .68vw, 12px);
+  --t-sm:  clamp(12px, .78vw, 13px);
+  --t-md:  clamp(13px, .9vw,  14px);
+  --t-lg:  clamp(15px, 1.1vw, 17px);
+  --t-xl:  clamp(20px, 1.6vw, 24px);
+  --t-2xl: clamp(28px, 3vw,   44px);
+  --t-3xl: clamp(40px, 5.2vw, 76px);
+
+  /* radii */
+  --r-xs: 4px; --r-sm: 6px; --r-md: 10px; --r-lg: 14px;
+  --r-xl: 20px; --r-2xl: 28px; --r-full: 999px;
+
+  /* shadows */
+  --sh-hair:  0 1px 0 rgba(255,255,255,.04) inset;
+  --sh-1:     0 1px 2px rgba(0,0,0,.4);
+  --sh-2:     0 14px 36px -18px rgba(0,0,0,.9), 0 0 0 1px var(--line);
+  --sh-3:     0 28px 60px -20px rgba(0,0,0,.95), 0 0 0 1px var(--line);
+  --sh-accent: 0 14px 34px -14px rgba(255,107,44,.55);
+
+  /* motion */
+  --e:        cubic-bezier(.2,.8,.2,1);
+  --e-out:    cubic-bezier(.16,1,.3,1);
+  --d-fast:   160ms;
+  --d-med:    240ms;
+  --d-slow:   420ms;
+}
+
+/* Light mode — toggled via `body.light` · cool mist + electric indigo */
+body.light {
+  --bg:            #eef1f6;     /* cool mist (not cream!) */
+  --bg-1:          #ffffff;
+  --bg-2:          #e4e8ef;
+  --bg-3:          #d6dbe6;
+  --line:          rgba(15,23,42,.09);
+  --line-2:        rgba(15,23,42,.18);
+  --line-strong:   rgba(15,23,42,.36);
+
+  --fg:            #0f172a;     /* slate-900 */
+  --fg-1:          #1e293b;
+  --fg-2:          #475569;
+  --fg-3:          #64748b;
+  --fg-4:          #94a3b8;
+
+  --accent:        #5b3fd6;     /* deep indigo for readability on light */
+  --accent-hi:     #7c5cff;
+  --accent-lo:     #4030a8;
+  --success:       #059669;
+  --danger:        #e11d48;
+  --info:          #0284c7;
+  --violet:        #7c3aed;
+  --gold:          #d97706;
+}
+
+/* ----------  BASE  ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: var(--s-5) var(--s-5) var(--s-5) calc(232px + var(--s-5));
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--f-body);
+  font-size: var(--t-md);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'ss01';
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* atmospheric gradient glow (dark default) — indigo + sky + rose */
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(900px 500px at 88% -10%, rgba(124,92,255,.14), transparent 60%),
+    radial-gradient(800px 500px at -8% 110%, rgba(56,189,248,.08), transparent 60%),
+    radial-gradient(600px 400px at 50% 50%, rgba(244,63,94,.04), transparent 60%);
+}
+body.light::before {
+  background:
+    radial-gradient(900px 500px at 88% -10%, rgba(91,63,214,.08), transparent 60%),
+    radial-gradient(800px 500px at -8% 110%, rgba(56,189,248,.08), transparent 60%),
+    radial-gradient(600px 400px at 50% 50%, rgba(225,29,72,.04), transparent 60%);
+}
+
+/* texture overlay */
+body::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  opacity: .45; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .18 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+body.light::after {
+  opacity: .3; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .12 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+body > * { position: relative; z-index: 1; }
+
+/* ----------  TYPOGRAPHY  ---------- */
+/* Title — pinned top of left sidenav */
+h1 {
+  position: fixed;
+  top: var(--s-5);
+  left: var(--s-5);
+  width: 210px;
+  margin: 0;
+  padding: 0 var(--s-3);
+  font-family: var(--f-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: var(--t-lg);
+  line-height: 1.1;
+  letter-spacing: -.025em;
+  color: var(--fg);
+  text-align: left;
+  z-index: 40;
+  pointer-events: none;
+}
+h1 .accent, h1 em, h1 i { color: var(--accent); font-style: italic; }
+
+h2 { font-family: var(--f-display); font-style: italic; font-weight: 500; letter-spacing: -.02em; }
+h3 { font-family: var(--f-body); font-size: 11px; font-weight: 500; text-transform: uppercase;
+     letter-spacing: .16em; color: var(--fg-2); margin: 0 0 var(--s-4); }
+h4 { font-family: var(--f-body); font-size: var(--t-md); font-weight: 500;
+     letter-spacing: -.005em; margin: var(--s-4) 0 var(--s-2); color: var(--fg); }
+
+/* Subtitle — removed from flow; becomes sidebar caption */
+.subtitle {
+  position: fixed;
+  top: calc(var(--s-5) + 42px);
+  left: var(--s-5);
+  width: 210px;
+  margin: 0;
+  padding: 0 var(--s-3);
+  font: 400 var(--t-xs) var(--f-body);
+  color: var(--fg-3);
+  letter-spacing: .02em;
+  line-height: 1.4;
+  text-align: left;
+  z-index: 40;
+  pointer-events: none;
+}
+
+p { margin: var(--s-2) 0; color: var(--fg-1); }
+ul { margin: var(--s-2) 0 var(--s-2) var(--s-4); padding: 0; color: var(--fg-1); }
+li { margin: 4px 0; }
+code { font-family: var(--f-mono); font-size: .92em; color: var(--accent-hi); }
+body.light code { color: var(--accent-lo); }
+
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent;
+    transition: border-color var(--d-fast); }
+a:hover { border-bottom-color: var(--accent); }
+
+/* ----------  NAVIGATION / TABS (vertical sidenav)  ---------- */
+.tabs {
+  position: fixed;
+  left: var(--s-5);
+  top: calc(var(--s-5) + 94px);
+  width: 210px;
+  max-height: calc(100vh - var(--s-5) * 2 - 94px);
+  overflow-y: auto;
+  z-index: 40;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--s-2);
+  background: color-mix(in srgb, var(--bg-1) 80%, transparent);
+  backdrop-filter: blur(18px) saturate(180%);
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  margin: 0;
+}
+
+.tab {
+  display: block;
+  width: 100%;
+  padding: 9px 14px;
+  text-align: left;
+  background: transparent; border: 0;
+  color: var(--fg-2);
+  font: 500 var(--t-sm)/1.2 var(--f-body);
+  letter-spacing: -.005em;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: color var(--d-fast) var(--e),
+              background var(--d-fast) var(--e),
+              padding-left var(--d-fast) var(--e);
+  white-space: nowrap;
+  position: relative;
+}
+.tab:hover { color: var(--fg); background: var(--bg-2); }
+.tab.active {
+  color: var(--bg);
+  background: var(--fg);
+}
+.tab.active::before {
+  content: ''; position: absolute;
+  left: -2px; top: 6px; bottom: 6px; width: 2px;
+  background: var(--accent);
+  border-radius: var(--r-full);
+}
+
+/* Single-page files (no .tabs) — reclaim sidebar space */
+body:not(:has(.tabs)) {
+  padding-left: var(--s-5);
+}
+body:not(:has(.tabs)) h1 {
+  position: relative; top: 0; left: 0; width: auto;
+  text-align: center; font-size: var(--t-xl); padding: 0;
+  margin: 0 0 var(--s-2); pointer-events: auto;
+}
+body:not(:has(.tabs)) .subtitle {
+  position: relative; top: 0; left: 0; width: auto;
+  text-align: center; padding: 0; margin: 0 auto var(--s-4);
+  font-size: var(--t-sm); max-width: 62ch; pointer-events: auto;
+}
+
+/* Mobile: collapse sidenav to topbar */
+@media (max-width: 900px) {
+  body { padding: var(--s-3) var(--s-3) var(--s-5); }
+  h1 { position: relative; top: 0; left: 0; width: auto; text-align: center;
+       font-size: var(--t-xl); padding: 0; margin: 0 0 4px; pointer-events: auto; }
+  .subtitle { position: relative; top: 0; left: 0; width: auto;
+       text-align: center; padding: 0; margin: 0 auto var(--s-3); pointer-events: auto; }
+  .tabs {
+    position: relative; left: 0; top: 0; width: 100%;
+    max-height: none; overflow: visible;
+    flex-direction: row; flex-wrap: wrap; justify-content: center;
+    border-radius: var(--r-full); margin: 0 auto var(--s-4);
+  }
+  .tab { width: auto; text-align: center; padding: 7px 14px; border-radius: var(--r-full); }
+  .tab.active::before { display: none; }
+}
+
+/* ----------  PANELS / LAYOUT  ---------- */
+/* Tab panels: only hide panels that are siblings of a .tabs element */
+.tabs ~ .panel { display: none; max-width: 1400px; margin: 0 auto; width: 100%; }
+.tabs ~ .panel.active {
+  display: grid; gap: var(--s-4);
+  grid-template-columns: 1.05fr 1fr;
+  animation: enter .5s var(--e-out) both;
+}
+.tabs ~ .panel.single.active { grid-template-columns: 1fr; }
+
+@media (max-width: 960px) {
+  .tabs ~ .panel.active { grid-template-columns: 1fr; }
+}
+
+/* Generic layout grid (3-col: code · flow · vars) — loops, operators, py_to_flowchart */
+.layout {
+  display: grid; gap: var(--s-4);
+  grid-template-columns: 1fr 1.2fr 320px;
+  max-width: 1500px; margin: 0 auto;
+  min-height: 0;
+  animation: enter .5s var(--e-out) both;
+}
+@media (max-width: 1100px) { .layout { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 760px)  { .layout { grid-template-columns: 1fr; } }
+
+/* process_states structural containers */
+.container {
+  display: grid; gap: var(--s-4);
+  grid-template-columns: 1.55fr 1fr;
+  max-width: 1500px; margin: 0 auto;
+  min-height: 0;
+}
+@media (max-width: 960px) { .container { grid-template-columns: 1fr; } }
+.left-col { display: flex; flex-direction: column; gap: var(--s-3); min-height: 0; }
+.sidebar  { display: flex; flex-direction: column; gap: var(--s-3); min-height: 0; }
+.sidebar .panel {
+  background: linear-gradient(180deg, var(--bg-1), var(--bg));
+  border: 1px solid var(--line); border-radius: var(--r-lg);
+  padding: var(--s-4);
+}
+.sidebar .panel h3 { margin: 0 0 var(--s-3); }
+.sidebar .panel.term-panel { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.diagram  {
+  background: linear-gradient(180deg, var(--bg-1), var(--bg));
+  border: 1px solid var(--line); border-radius: var(--r-lg);
+  padding: var(--s-4); flex: 1; min-height: 320px; position: relative;
+}
+.diagram svg { width: 100%; height: 100%; min-height: 300px; }
+#notify, .board-wrap {
+  background: linear-gradient(180deg, var(--bg-1), var(--bg));
+  border: 1px solid var(--line); border-radius: var(--r-lg);
+  padding: var(--s-4);
+}
+.ops { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); }
+.ops button { width: 100%; padding: 8px 12px; font: 500 var(--t-xs) var(--f-body);
+  background: var(--bg-2); color: var(--fg-1); border: 1px solid var(--line-2);
+  border-radius: var(--r-sm); cursor: pointer;
+  transition: all var(--d-fast) var(--e); }
+.ops button:hover:not(:disabled) { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.ops button:disabled { opacity: .3; cursor: not-allowed; }
+.ops button.good { background: var(--success); color: #0a0a0a; border-color: transparent; }
+.ops button.danger { background: var(--danger); color: #fff; border-color: transparent; }
+
+/* Process "status" info pill (not alert-style) */
+.sidebar .status, .status.pill {
+  display: flex; justify-content: space-between; padding: 6px 10px;
+  background: var(--bg-1); border: 1px solid var(--line);
+  border-radius: var(--r-sm); border-left: 1px solid var(--line);
+  font: 500 var(--t-xs) var(--f-mono); color: var(--fg-1);
+}
+.sidebar .status span:last-child { color: var(--accent); font-weight: 500; }
+
+/* py_to_flowchart — flow wrap */
+.flow-wrap { position: relative; overflow: auto; flex: 1; min-height: 0; border-radius: var(--r-md); }
+
+/* legacy decorative background from earlier iterations (kept inert) */
+.mat-bg { display: none; }
+
+/* py_to_flowchart defs icons */
+svg.flow { width: 100%; flex: 1; min-height: 0; display: block;
+  background: linear-gradient(180deg, var(--bg-1), var(--bg));
+  border: 1px solid var(--line); border-radius: var(--r-md); }
+
+/* ---------- LINUX NETWORK helpers ---------- */
+.layout.three { display: grid; gap: var(--s-4); grid-template-columns: 1.3fr 1fr 1fr;
+  max-width: 1500px; margin: 0 auto; }
+@media (max-width: 1100px) { .layout.three { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 760px)  { .layout.three { grid-template-columns: 1fr; } }
+
+svg.diag {
+  width: 100%; display: block;
+  background: linear-gradient(180deg, var(--bg-1), var(--bg));
+  border: 1px solid var(--line); border-radius: var(--r-md);
+}
+
+.card.scroll { overflow-y: auto; }
+
+.btn.danger { background: var(--danger); color: #fff; }
+.btn.danger:hover { background: var(--accent); }
+
+.cmd    { color: var(--accent-hi); }
+.prompt { color: var(--info); }
+.ok     { color: var(--success); }
+.err    { color: var(--danger); }
+.info   { color: var(--info); }
+.hl     { color: var(--accent); font-weight: 500; }
+.dim    { color: var(--fg-3); }
+
+.host-row {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: 8px 12px; background: var(--bg-1);
+  border: 1px solid var(--line); border-radius: var(--r-sm);
+  font: 500 12.5px var(--f-mono);
+  margin: 4px 0;
+}
+
+.ports-table { width: 100%; border-collapse: separate; border-spacing: 0;
+  font: 500 12px var(--f-mono); }
+.ports-table th, .ports-table td {
+  padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left;
+}
+.ports-table th {
+  font: 500 10px var(--f-body);
+  text-transform: uppercase; letter-spacing: .14em;
+  color: var(--fg-3);
+}
+.ports-table tr:hover td { background: var(--bg-2); }
+
+.rules-list { display: flex; flex-direction: column; gap: 4px; }
+.rules-list > div {
+  padding: 6px 10px; background: var(--bg-1);
+  border: 1px solid var(--line); border-radius: var(--r-sm);
+  font: 500 12px var(--f-mono); color: var(--fg-1);
+}
+
+/* dns-graph */
+.dns-node rect { fill: var(--bg-2); stroke: var(--line-2); stroke-width: 1.2; }
+.dns-node text { fill: var(--fg); font: 500 12px var(--f-body); }
+.dns-node.hl rect { fill: var(--accent); stroke: var(--accent-hi); }
+.dns-node.hl text { fill: #0a0a0a; font-weight: 600; }
+.dns-edge { stroke: var(--fg-4); stroke-width: 1.3; fill: none;
+  transition: all var(--d-med); }
+.dns-edge.active { stroke: var(--accent); stroke-width: 2.2;
+  stroke-dasharray: 6 4; animation: dashflow 900ms linear infinite; }
+
+@keyframes enter { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ----------  CARDS  ---------- */
+.card {
+  position: relative;
+  background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg) 100%);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: var(--s-5);
+  display: flex; flex-direction: column;
+  transition: border-color var(--d-med) var(--e), transform var(--d-med) var(--e);
+  min-height: 0;
+}
+.card::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,.05), transparent 20%);
+}
+.card:hover { border-color: var(--line-2); }
+
+/* ----------  CONTROLS / ROWS  ---------- */
+.row, .controls {
+  display: flex; gap: var(--s-2); flex-wrap: wrap; align-items: center;
+  margin: var(--s-2) 0;
+}
+
+/* ----------  BUTTONS  ---------- */
+button.btn, .btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px;
+  background: var(--fg); color: var(--bg);
+  border: 1px solid transparent;
+  border-radius: var(--r-full);
+  font: 500 var(--t-sm)/1 var(--f-body);
+  letter-spacing: -.005em;
+  cursor: pointer;
+  transition: background var(--d-fast) var(--e),
+              color var(--d-fast) var(--e),
+              transform var(--d-fast) var(--e),
+              border-color var(--d-fast);
+}
+button.btn:hover, .btn:hover { background: var(--accent); color: var(--bg); transform: translateY(-1px); }
+button.btn:active { transform: translateY(0); }
+
+button.btn.go { background: var(--accent); color: var(--bg); }
+button.btn.go:hover { background: var(--accent-hi); }
+
+button.btn.alt { background: transparent; color: var(--fg); border-color: var(--line-strong); }
+button.btn.alt:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+button.btn.warn { background: var(--gold); color: var(--bg); }
+button.btn.warn:hover { background: var(--accent); color: var(--bg); }
+
+button.btn:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+
+/* generic button (process_states) */
+button {
+  font-family: var(--f-body);
+}
+button.good   { background: var(--success) !important; color: #000 !important; border-color: transparent !important; }
+button.danger { background: var(--danger) !important; color: #fff !important; border-color: transparent !important; }
+
+/* ----------  MODE CHIPS  ---------- */
+.modes { display: flex; gap: var(--s-1); flex-wrap: wrap; margin: 6px 0 var(--s-3); }
+.mode-chip {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--line-2);
+  color: var(--fg-1);
+  font: 500 var(--t-xs)/1 var(--f-body);
+  letter-spacing: -.005em;
+  border-radius: var(--r-full);
+  cursor: pointer;
+  transition: all var(--d-fast) var(--e);
+  white-space: nowrap;
+}
+.mode-chip:hover { color: var(--fg); border-color: var(--fg-3); }
+.mode-chip.active { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+/* ----------  INPUTS  ---------- */
+input[type=text], input[type=number], select {
+  font: 400 var(--t-sm) var(--f-body);
+  padding: 8px 12px;
+  background: var(--bg-1);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  transition: border-color var(--d-fast), background var(--d-fast);
+}
+input[type=text]:focus, input[type=number]:focus, select:focus {
+  outline: none; border-color: var(--accent);
+  background: var(--bg-2);
+}
+input[type=number] { width: 88px; font-family: var(--f-mono); }
+
+textarea {
+  font: 400 var(--t-sm) var(--f-body);
+  padding: var(--s-3);
+  background: var(--bg-1);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  resize: vertical;
+}
+textarea:focus { outline: none; border-color: var(--accent); }
+
+textarea.code, textarea.sentence {
+  font-family: var(--f-mono);
+  background: #060606;
+  color: #e7e4df;
+  line-height: 1.65;
+  padding: var(--s-4);
+  border-radius: var(--r-md);
+}
+body.light textarea.code, body.light textarea.sentence {
+  background: #171719; color: #f0ece5; border-color: rgba(0,0,0,.12);
+}
+
+label, label.inline {
+  font: 500 var(--t-xs) var(--f-body);
+  color: var(--fg-2);
+  letter-spacing: -.005em;
+  display: flex; align-items: center; gap: 6px;
+}
+
+input[type=range] {
+  appearance: none; -webkit-appearance: none;
+  width: 140px; height: 4px;
+  background: var(--line-2); border-radius: var(--r-full);
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  appearance: none; width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent); border: 2px solid var(--bg);
+  box-shadow: 0 2px 6px rgba(0,0,0,.6);
+}
+input[type=range]::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent); border: 2px solid var(--bg);
+}
+
+/* ----------  CODE BLOCKS  ---------- */
+pre, pre.code {
+  background: #0d0d10;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: var(--s-4);
+  font: 400 13px/1.7 var(--f-mono);
+  color: #e7e4df;
+  white-space: pre;
+  overflow: auto;
+  margin: var(--s-2) 0;
+  tab-size: 4;
+}
+body.light pre, body.light pre.code {
+  background: #17171a; color: #f0ece5; border-color: rgba(0,0,0,.1);
+}
+
+pre.code .kw,  pre .kw   { color: #f87171; }   /* rose */
+pre.code .fn,  pre .fn   { color: #60a5fa; }   /* sky */
+pre.code .num, pre .num  { color: #c084fc; }   /* violet */
+pre.code .str, pre .str  { color: #34d399; }   /* emerald */
+pre.code .cm,  pre .cm   { color: var(--fg-4); font-style: italic; }
+
+pre.code .ln, .codeline {
+  display: block;
+  padding: 0 var(--s-3);
+  margin-left: calc(var(--s-3) * -1);
+  border-left: 2px solid transparent;
+}
+pre.code .ln.active, .codeline.hl {
+  background: rgba(255,107,44,.08);
+  border-left-color: var(--accent);
+  color: var(--accent-hi);
+}
+
+/* ----------  OUTPUT / FEED / TERMINAL  ---------- */
+.output, .feed {
+  font: 400 12.5px/1.55 var(--f-mono);
+  background: #0d0d10;
+  color: var(--success);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: var(--s-3) var(--s-4);
+  max-height: 220px; overflow: auto;
+  margin-top: var(--s-3);
+  min-height: 44px;
+  white-space: pre-wrap;
+}
+body.light .output, body.light .feed { background: #17171a; }
+.output .err { color: var(--danger); }
+.output .inp { color: var(--gold); }
+.feed .line { display: block; animation: enter 220ms var(--e-out) both; }
+.feed .line.hl { color: var(--accent-hi); font-weight: 500; }
+
+.terminal {
+  background: #050507; border: 1px solid var(--line);
+  border-radius: var(--r-md); padding: var(--s-3);
+  font: 400 12px/1.55 var(--f-mono); color: var(--success);
+  overflow-y: auto;
+}
+.terminal .prompt { color: var(--info); }
+.terminal .err    { color: var(--danger); }
+.terminal .ok     { color: var(--gold); }
+
+/* ----------  TIPS / WARNINGS / STATUS  ---------- */
+.tip, .warn, .status {
+  font: 400 var(--t-sm)/1.55 var(--f-body);
+  padding: var(--s-3);
+  border-radius: var(--r-sm);
+  border-left: 2px solid;
+  margin: var(--s-2) 0;
+}
+.tip  { background: color-mix(in srgb, var(--info) 8%, transparent);
+        border-color: var(--info); color: var(--fg-1); }
+.warn { background: color-mix(in srgb, var(--danger) 8%, transparent);
+        border-color: var(--danger); color: var(--fg-1); }
+
+.status { background: var(--bg-1); border-color: var(--info); color: var(--fg-1); }
+.status.ok   { border-color: var(--success); }
+.status.err  { border-color: var(--danger); }
+.status.done { border-color: var(--accent); }
+.status.true  { border-color: var(--success); }
+.status.false { border-color: var(--danger); }
+
+/* ----------  BADGES  ---------- */
+.badge {
+  display: inline-block;
+  font: 500 10px/1 var(--f-mono);
+  padding: 5px 9px;
+  border-radius: var(--r-full);
+  background: var(--bg-3);
+  color: var(--fg-1);
+  border: 1px solid var(--line);
+  margin-left: var(--s-2);
+  letter-spacing: .04em;
+  vertical-align: middle;
+}
+
+/* ----------  KEY-VALUE (DICT)  ---------- */
+.kv-wrap { display: flex; flex-direction: column; gap: var(--s-2);
+  max-height: 340px; overflow: auto; padding: 2px; }
+.kv-row {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  font: 500 13px var(--f-mono);
+  transition: border-color var(--d-fast), background var(--d-fast);
+  animation: enter 220ms var(--e-out) both;
+}
+.kv-row:hover { border-color: var(--line-2); }
+.kv-row.hl { border-color: var(--accent); background: rgba(255,107,44,.05); }
+.kv-row .key { color: var(--accent); min-width: 110px; }
+.kv-row .arrow { color: var(--fg-3); }
+.kv-row .val { color: var(--success); flex: 1; word-break: break-all; }
+.kv-row button.x {
+  background: transparent; color: var(--danger);
+  border: 1px solid var(--line-2); border-radius: var(--r-full);
+  width: 22px; height: 22px; padding: 0; cursor: pointer; font-size: 12px;
+}
+.kv-row button.x:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+/* ----------  LIST ITEMS (1D)  ---------- */
+.listviz { display: flex; gap: var(--s-2); flex-wrap: wrap; margin: var(--s-2) 0;
+  position: relative; padding: 4px 0; }
+.litem {
+  min-width: 56px; position: relative;
+  padding: var(--s-3);
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  text-align: center;
+  font: 500 13px/1 var(--f-mono);
+  color: var(--fg);
+  transition: transform var(--d-fast) var(--e), border-color var(--d-fast);
+  animation: enter 220ms var(--e-out) both;
+}
+.litem:hover { transform: translateY(-2px); border-color: var(--accent); }
+.litem.hl { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.litem.sliced { border-color: var(--success); color: var(--success); }
+.litem.appearing { animation: enter 320ms var(--e-out) both; }
+.litem.inserting { animation: insert 320ms var(--e-out) both; }
+.litem.removing  { animation: poof 360ms var(--e) forwards; }
+.litem .ix {
+  position: absolute; bottom: -16px; left: 0; right: 0;
+  font: 500 10px var(--f-mono); color: var(--fg-3);
+  letter-spacing: .02em;
+}
+.litem .neg {
+  position: absolute; top: -16px; left: 0; right: 0;
+  font: 500 10px var(--f-mono); color: var(--danger);
+}
+.listviz.margined { margin: 22px 4px 26px; }
+
+@keyframes insert { from { transform: translateY(-10px) scale(.9); opacity: 0; }
+                    to   { transform: translateY(0) scale(1); opacity: 1; } }
+@keyframes poof   { from { transform: scale(1); opacity: 1; filter: blur(0); }
+                    to   { transform: scale(1.4); opacity: 0; filter: blur(6px); } }
+@keyframes pop    { 0% { transform: scale(.6); opacity: 0; }
+                    60% { transform: scale(1.1); }
+                    100% { transform: scale(1); opacity: 1; } }
+.bump { animation: pop 320ms var(--e-out) both; }
+
+/* ----------  SET CHIPS  ---------- */
+.setviz { display: flex; gap: 6px; flex-wrap: wrap; margin: var(--s-2) 0; min-height: 36px; }
+.schip {
+  padding: 6px 12px; border-radius: var(--r-full);
+  background: var(--bg-1); border: 1px solid var(--line-2);
+  font: 500 12px/1 var(--f-mono); color: var(--fg);
+  animation: enter 240ms var(--e-out) both;
+  transition: all var(--d-fast) var(--e);
+}
+.schip:hover { border-color: var(--accent); }
+.schip.hl     { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.schip.common { background: var(--gold);   color: #111;     border-color: var(--gold); }
+.schip.a      { border-color: var(--info);   color: var(--info); }
+.schip.b      { border-color: var(--violet); color: var(--violet); }
+
+/* ----------  VAR BOXES  ---------- */
+.vars { display: flex; gap: var(--s-2); flex-wrap: wrap; margin-top: var(--s-3); }
+.var-box {
+  background: var(--bg-1);
+  padding: 6px 12px;
+  border: 1px solid var(--success);
+  border-radius: var(--r-sm);
+  min-width: 64px; text-align: center;
+  transition: transform var(--d-fast);
+}
+.var-box:hover { transform: translateY(-1px); }
+.var-box .name { font: 500 10px/1 var(--f-body); color: var(--fg-3);
+  text-transform: uppercase; letter-spacing: .1em; }
+.var-box .val  { font: 500 15px/1 var(--f-mono); color: var(--fg); margin-top: 4px; }
+
+/* ----------  BIG-VAR CARDS  ---------- */
+.big-vars { display: flex; gap: var(--s-3); flex-wrap: wrap; margin: var(--s-3) 0; }
+.big-var {
+  flex: 1; min-width: 120px;
+  padding: var(--s-3) var(--s-4);
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  transition: border-color var(--d-fast);
+  animation: enter 280ms var(--e-out) both;
+}
+.big-var:hover { border-color: var(--line-2); }
+.big-var .lbl {
+  font: 500 10px/1 var(--f-body);
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--fg-3); margin-bottom: 6px;
+}
+.big-var .v {
+  font: 500 22px/1.1 var(--f-mono);
+  letter-spacing: -.02em;
+  color: var(--fg);
+  word-break: break-all;
+}
+
+/* ----------  TOAST  ---------- */
+.toast-wrap {
+  position: fixed; top: calc(var(--s-5) + 52px); right: var(--s-5); z-index: 60;
+  display: flex; flex-direction: column; gap: var(--s-2);
+  max-width: 340px;
+}
+.toast {
+  padding: var(--s-3) var(--s-4);
+  background: var(--fg); color: var(--bg);
+  border-radius: var(--r-sm);
+  font: 500 var(--t-sm) var(--f-body);
+  letter-spacing: -.005em;
+  box-shadow: 0 24px 48px -20px rgba(0,0,0,.95);
+  animation: slideIn 260ms var(--e-out) both;
+}
+.toast.err  { background: var(--danger); color: #fff; }
+.toast.info { background: var(--info);   color: #fff; }
+@keyframes slideIn { from { transform: translateX(30px); opacity: 0; }
+                     to   { transform: translateX(0); opacity: 1; } }
+
+/* ----------  THEME TOGGLE  ---------- */
+.theme-toggle {
+  position: fixed; top: var(--s-4); right: var(--s-4); z-index: 50;
+  width: 40px; height: 40px;
+  background: var(--bg-1); color: var(--fg);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-full);
+  cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--d-fast);
+}
+.theme-toggle:hover { background: var(--fg); color: var(--bg); transform: rotate(15deg); }
+
+/* ----------  TABLES  ---------- */
+table.tbl { width: 100%; border-collapse: separate; border-spacing: 0;
+  font: 500 var(--t-sm) var(--f-mono); margin-top: var(--s-3); }
+table.tbl th, table.tbl td {
+  padding: 8px 12px; border-bottom: 1px solid var(--line); text-align: center;
+}
+table.tbl th {
+  font: 500 10px var(--f-body);
+  text-transform: uppercase; letter-spacing: .14em;
+  color: var(--fg-3);
+}
+table.tbl tr.hl td { background: rgba(255,107,44,.08); color: var(--accent-hi); }
+
+/* ----------  PIPELINE / STAGES  ---------- */
+.pipeline { display: flex; gap: var(--s-2); flex-wrap: wrap; align-items: center; margin: var(--s-2) 0; }
+.pipeline .stage {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 8px 12px; min-width: 84px;
+  font: 500 12.5px var(--f-mono); color: var(--fg);
+}
+.pipeline .stage .cap {
+  font: 500 9.5px var(--f-body);
+  text-transform: uppercase; letter-spacing: .14em;
+  color: var(--fg-3); margin-bottom: 4px;
+}
+.pipeline .stage b { color: var(--accent); }
+
+/* ----------  GRID (2D LISTS)  ---------- */
+.grid-wrap { overflow: auto; margin: var(--s-2) 0; padding-bottom: 6px; }
+.grid2d { display: table; border-collapse: separate; border-spacing: 6px; }
+.grow { display: table-row; }
+.grow.pulse { animation: ring 1.4s var(--e) infinite; border-radius: var(--r-sm); }
+@keyframes ring { 0%,100% { box-shadow: 0 0 0 0 rgba(255,107,44,.45); }
+                  50%     { box-shadow: 0 0 0 6px rgba(255,107,44,0); } }
+
+.gcell {
+  display: table-cell; vertical-align: middle;
+  min-width: 56px; height: 44px; padding: 8px 12px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  text-align: center;
+  font: 500 13px/1 var(--f-mono); color: var(--fg);
+  cursor: pointer;
+  transition: all var(--d-fast) var(--e);
+  animation: enter 240ms var(--e-out) both;
+}
+.gcell:hover { border-color: var(--accent); transform: translateY(-1px); }
+.gcell.hl     { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.gcell.rowhl  { background: color-mix(in srgb, var(--info) 14%, var(--bg-1)); border-color: var(--info); }
+.gcell.colhl  { background: color-mix(in srgb, var(--violet) 14%, var(--bg-1)); border-color: var(--violet); }
+.gcell.done   { background: color-mix(in srgb, var(--success) 10%, var(--bg-1)); border-color: var(--success); }
+
+.rhead, .chead {
+  display: inline-block; min-width: 28px; padding: 4px 8px;
+  background: var(--bg-2); color: var(--fg-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  font: 500 10px var(--f-mono);
+}
+.rhead.active { background: var(--info); color: #fff; border-color: var(--info); }
+.chead.active { background: var(--violet); color: #111; border-color: var(--violet); }
+
+/* ----------  VENN ZONES  ---------- */
+.venn-zones { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--s-2);
+  margin: var(--s-3) 0; }
+.vzone {
+  min-height: 90px; padding: var(--s-3);
+  border: 1.5px solid; border-radius: var(--r-md);
+  background: var(--bg-1);
+  transition: all var(--d-fast) var(--e);
+}
+.vzone .lbl { font: 500 10.5px var(--f-body);
+  letter-spacing: .14em; text-transform: uppercase; margin-bottom: 6px; }
+.vzone .items { display: flex; gap: 5px; flex-wrap: wrap; }
+.vzone.a     { border-color: var(--info); }
+.vzone.a .lbl { color: var(--info); }
+.vzone.b     { border-color: var(--violet); }
+.vzone.b .lbl { color: var(--violet); }
+.vzone.inter { border-color: var(--gold); }
+.vzone.inter .lbl { color: var(--gold); }
+.vzone.dim   { opacity: .35; }
+.vzone.glow  { box-shadow: 0 0 0 2px rgba(255,201,74,.25); background: color-mix(in srgb, var(--gold) 5%, var(--bg-1)); }
+
+.venn-preview { width: 100%; max-width: 400px; height: 170px; margin: 0 auto; }
+.venn-preview svg { width: 100%; height: 100%; }
+.venn-preview .zone { fill-opacity: .2; transition: fill-opacity var(--d-med); }
+.venn-preview .zone.on { fill-opacity: .55; }
+
+/* ----------  LETTERS (FREQUENCY)  ---------- */
+.letters-row { display: flex; gap: 6px; flex-wrap: wrap; margin: var(--s-2) 0; }
+.letter {
+  position: relative;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-1);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  color: var(--fg);
+  font: 600 13px var(--f-mono);
+  transition: all var(--d-fast) var(--e);
+  animation: enter 240ms var(--e-out) both;
+}
+.letter.current { background: var(--accent); color: var(--bg); border-color: var(--accent);
+                  transform: translateY(-2px) scale(1.08); }
+.letter.done    { border-color: var(--success); color: var(--success); }
+.letter .sub { position: absolute; bottom: -14px; left: 0; right: 0;
+               font: 500 9px var(--f-mono); color: var(--fg-3); }
+
+/* ----------  DICT BRACE WRAP  ---------- */
+.dict-wrap {
+  margin: var(--s-2) 0;
+  padding: var(--s-3);
+  border-radius: var(--r-md);
+  border: 1px dashed var(--line-2);
+  background: var(--bg-1);
+}
+.dict-wrap .braces {
+  display: flex; align-items: center; gap: var(--s-2);
+  font: 600 22px var(--f-mono); color: var(--accent);
+}
+.dict-wrap .braces .inner { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+
+/* ----------  KEY RESULT BANNER  ---------- */
+.key-result {
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  border: 1px solid;
+  margin-top: var(--s-2);
+  font: 500 13px var(--f-mono);
+  line-height: 1.5;
+}
+.key-result.ok  { border-color: var(--success); color: var(--success);
+                  background: color-mix(in srgb, var(--success) 8%, transparent); }
+.key-result.bad { border-color: var(--danger); color: var(--danger);
+                  background: color-mix(in srgb, var(--danger) 8%, transparent); }
+
+/* ----------  LEGEND  ---------- */
+.legend { display: flex; gap: var(--s-3); flex-wrap: wrap; margin-top: var(--s-2);
+  font: 500 10.5px var(--f-body); color: var(--fg-2); letter-spacing: .02em; }
+.legend span { display: flex; align-items: center; gap: 4px; }
+.legend .dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+/* ----------  QUIZ (if present)  ---------- */
+.quiz-q { background: var(--bg-1); border: 1px solid var(--line); border-radius: var(--r-md);
+  padding: var(--s-4); margin-bottom: var(--s-3); }
+.quiz-q h4 { color: var(--accent); margin: 0 0 var(--s-2); }
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); margin-top: var(--s-2); }
+.choice {
+  padding: 10px 12px;
+  background: var(--bg); border: 1px solid var(--line-2);
+  border-radius: var(--r-sm); cursor: pointer;
+  font: 500 var(--t-sm) var(--f-mono); color: var(--fg);
+  text-align: left; transition: all var(--d-fast) var(--e);
+}
+.choice:hover { border-color: var(--accent); }
+.choice.correct { background: color-mix(in srgb, var(--success) 14%, var(--bg-1));
+                  border-color: var(--success); color: var(--success); }
+.choice.wrong   { background: color-mix(in srgb, var(--danger) 14%, var(--bg-1));
+                  border-color: var(--danger); color: var(--danger); }
+.choice.disabled { pointer-events: none; opacity: .7; }
+.feedback { margin-top: var(--s-2); font: 400 var(--t-sm) var(--f-body); color: var(--fg-2); min-height: 16px; }
+.feedback.ok  { color: var(--success); }
+.feedback.bad { color: var(--danger); }
+.quiz-score { padding: 12px 14px; border-radius: var(--r-md); text-align: center;
+  background: var(--bg-1); border: 1px solid var(--line);
+  font: 500 var(--t-md) var(--f-body); }
+
+/* ----------  SVG FLOWCHART NODES (loops, flowchart, py_to_flowchart, operators)  ---------- */
+svg.flow, .card svg {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  min-height: 0;
+}
+
+.node rect, .node polygon, .node ellipse {
+  transition: all var(--d-med) var(--e);
+  fill: var(--bg-2);
+  stroke: var(--line-2);
+  stroke-width: 1.2;
+}
+.node text {
+  fill: var(--fg); font: 500 13px var(--f-body);
+  pointer-events: none;
+}
+.node.active rect, .node.active polygon, .node.active ellipse {
+  fill: var(--accent) !important;
+  stroke: var(--accent-hi) !important;
+  stroke-width: 2 !important;
+  filter: drop-shadow(0 4px 14px rgba(255,107,44,.45));
+}
+.node.active text { fill: #111 !important; }
+.node.done rect, .node.done polygon, .node.done ellipse {
+  fill: color-mix(in srgb, var(--success) 16%, var(--bg-2)) !important;
+  stroke: var(--success) !important;
+}
+
+.edge {
+  stroke: var(--fg-4); stroke-width: 1.3; fill: none;
+  transition: all var(--d-med);
+}
+.edge.active {
+  stroke: var(--accent); stroke-width: 2.2;
+  filter: drop-shadow(0 0 6px rgba(255,107,44,.45));
+  stroke-dasharray: 6 4; animation: dashflow 900ms linear infinite;
+}
+@keyframes dashflow { to { stroke-dashoffset: -20; } }
+.edge-label { fill: var(--fg-2); font: 500 10.5px var(--f-mono); }
+.edge.lit  { stroke: var(--gold); stroke-width: 2.4; filter: drop-shadow(0 0 4px rgba(255,201,74,.5)); }
+
+/* process_states-specific */
+.state { cursor: pointer; transition: transform var(--d-fast); }
+.state:hover { transform: scale(1.04); }
+.state rect { stroke-width: 2; rx: 10; }
+.state.active rect { filter: drop-shadow(0 0 12px rgba(255,107,44,.7));
+  stroke: var(--accent); stroke-width: 3; }
+.state text { fill: #0a0a0a; font: 600 12.5px var(--f-body); text-anchor: middle; pointer-events: none; }
+.label { fill: var(--fg-2); font: 500 11.5px var(--f-mono); text-anchor: middle; pointer-events: none; }
+.arrow { stroke: var(--line-strong); stroke-width: 1.6; fill: none; }
+.arrow.lit { stroke: var(--gold); stroke-width: 2.2; filter: drop-shadow(0 0 4px rgba(255,201,74,.5)); }
+
+#token { fill: var(--accent); filter: drop-shadow(0 0 10px var(--accent)); transition: all 1s var(--e); }
+
+.note { border-left: 2px solid var(--info); padding-left: var(--s-3); transition: all var(--d-med); }
+.note h4 { color: var(--fg); font-size: var(--t-md); }
+.note .what { color: var(--fg-1); font-size: var(--t-sm); line-height: 1.45; margin: 4px 0; }
+.note .trans { color: var(--fg-3); font-size: var(--t-xs); line-height: 1.4; }
+.note .icon { margin-right: 6px; }
+
+.board-title { font: 500 10.5px var(--f-body); color: var(--fg-2);
+  letter-spacing: .16em; text-transform: uppercase; margin-bottom: 6px; }
+
+.blink { animation: blink 1.2s infinite; }
+@keyframes blink { 50% { opacity: 0.35; } }
+
+/* pointers */
+.pointer-row { position: relative; height: 32px; margin-top: 4px; pointer-events: none; }
+.pointer {
+  position: absolute; bottom: 0; left: 0;
+  transform: translateX(-50%);
+  color: var(--accent); font-size: 20px;
+  transition: left var(--d-slow) var(--e);
+  animation: bob 1.4s var(--e) infinite;
+}
+.pointer .tag {
+  display: block; margin-top: 4px;
+  font: 500 10px var(--f-mono); letter-spacing: .04em;
+  background: var(--accent); color: var(--bg);
+  padding: 3px 8px; border-radius: var(--r-full);
+  animation: none;
+}
+@keyframes bob { 0%,100% { transform: translateX(-50%) translateY(0); }
+                 50%     { transform: translateX(-50%) translateY(-4px); } }
+
+/* trace-step (operators_conditionals) */
+.trace-step {
+  padding: 10px 12px; margin: 4px 0;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--line);
+  border-radius: var(--r-sm);
+  font: 500 12px var(--f-mono); color: var(--fg-2);
+  transition: all var(--d-fast);
+}
+.trace-step.active { border-left-color: var(--accent); color: var(--fg); background: var(--bg-2); }
+.trace-step.done   { border-left-color: var(--success); color: var(--fg-1); }
+.trace-step .num {
+  display: inline-block; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--bg-3); text-align: center; line-height: 20px;
+  font: 500 10px var(--f-mono); margin-right: 8px; color: var(--fg-3);
+}
+.trace-step.active .num { background: var(--accent); color: #111; }
+.trace-step.done   .num { background: var(--success); color: #111; }
+
+.big-result {
+  margin-top: var(--s-3); padding: var(--s-4);
+  background: var(--bg-1); border: 1px solid var(--line);
+  border-radius: var(--r-md); text-align: center;
+}
+.big-result .label {
+  font: 500 10px var(--f-body); color: var(--fg-3);
+  text-transform: uppercase; letter-spacing: .16em;
+}
+.big-result .val {
+  font: 600 26px/1 var(--f-mono); color: var(--fg); margin-top: var(--s-2);
+  letter-spacing: -.02em;
+}
+.big-result.err .val { color: var(--danger); }
+.big-result.tru .val { color: var(--success); }
+.big-result.fls .val { color: var(--danger); }
+
+.truth { display: grid; grid-template-columns: repeat(3,1fr); gap: 3px; margin-top: 6px; }
+.truth .cell { padding: 8px; text-align: center;
+  background: var(--bg-1); border: 1px solid var(--line);
+  border-radius: var(--r-sm); color: var(--fg-2);
+  font: 500 12px var(--f-mono); }
+.truth .cell.T  { color: var(--success); }
+.truth .cell.F  { color: var(--danger); }
+.truth .cell.hl { background: var(--bg-2); border-color: var(--accent); color: var(--fg); }
+
+/* speed & misc controls */
+.speed { display: flex; gap: 6px; align-items: center; }
+
+/* ----------  UTILITIES  ---------- */
+.hide { display: none !important; }
+.center { text-align: center; }
+.mt-0 { margin-top: 0 !important; }
+
+::selection { background: var(--accent); color: var(--bg); }
+
+/* scrollbars */
+* { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: var(--r-full); }
+*::-webkit-scrollbar-thumb:hover { background: var(--fg-3); }
+
+</style>
+</head>
+<body>
+
+<div class="mat-bg" aria-hidden="true">
+  <div class="shape s1"></div><div class="shape circle s2"></div><div class="shape s3"></div><div class="shape circle s4"></div>
+  <div class="shape s5"></div><div class="shape circle s6"></div><div class="shape s7"></div><div class="shape circle s8"></div>
+  <div class="ripple r1"></div><div class="ripple r2"></div><div class="ripple r3"></div><div class="ripple r4"></div><div class="ripple r5"></div>
+</div>
+
+<button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
+<div class="toast-wrap" id="toasts"></div>
+
+<h1>🗂️ Python Sets &amp; Dictionaries</h1>
+<p class="subtitle">Interactive dictionary editor · animated set operations · Venn zones · practical problems</p>
+
+<div class="tabs">
+  <button class="tab active" data-tab="dintro">Dict Intro</button>
+  <button class="tab" data-tab="dcrud">Dict CRUD</button>
+  <button class="tab" data-tab="diter">Iterate &amp; in</button>
+  <button class="tab" data-tab="freq">Frequency</button>
+  <button class="tab" data-tab="sintro">Sets Intro</button>
+  <button class="tab" data-tab="smath">Set Math</button>
+  <button class="tab" data-tab="uniq">Unique Words</button>
+</div>
+
+<!-- ========== DICT INTRO ========== -->
+<div class="panel active" id="panel-dintro">
+  <div class="card">
+    <h3>Duplicate keys — who wins?</h3>
+    <p style="font-size:12px;color:var(--fg-3);margin-top:0">Click <b>▶ Insert next</b>. Watch what happens when a key repeats.</p>
+    <pre class="code" id="dupCode"></pre>
+    <div class="row">
+      <button class="btn go" id="dupStep">▶ Insert next</button>
+      <button class="btn alt" id="dupAuto">⏩ Auto</button>
+      <button class="btn warn" id="dupReset">↺ Reset</button>
+    </div>
+    <div class="dict-wrap">
+      <div class="braces">{<div class="inner kv-wrap" id="dupViz" style="margin:0"></div>}</div>
+    </div>
+    <div class="big-vars">
+      <div class="big-var"><div class="lbl">step</div><div class="v" id="dupStepN">0 / 0</div></div>
+      <div class="big-var"><div class="lbl">len(d)</div><div class="v" id="dupLen">0</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Can this be a key? — live checker</h3>
+    <p style="font-size:12px;color:#8fa3bd;margin-top:0">Type any literal. Keys must be <b>hashable</b> (immutable).</p>
+    <div class="row">
+      <button class="btn alt" data-kex="42">42</button>
+      <button class="btn alt" data-kex="'hello'">'hello'</button>
+      <button class="btn alt" data-kex="True">True</button>
+      <button class="btn alt" data-kex="3.14">3.14</button>
+      <button class="btn alt" data-kex="(1, 2, 3)">(1, 2, 3)</button>
+      <button class="btn warn" data-kex="[1, 2]">[1, 2]</button>
+      <button class="btn warn" data-kex="{1, 2}">{1, 2}</button>
+      <button class="btn warn" data-kex="{'a': 1}">{'a': 1}</button>
+    </div>
+    <div class="row">
+      <label class="inline" style="flex:1">custom <input id="kInput" type="text" value="(1, 2, 3)" style="flex:1;min-width:180px"></label>
+      <label class="inline">value <input id="kVal" type="text" value="alpha" style="width:100px"></label>
+      <button class="btn go" id="kTry">Try</button>
+    </div>
+    <div class="key-result" id="kResult" style="display:none"></div>
+
+    <h4 style="margin-top:14px">🎨 Heterogeneous example</h4>
+    <pre class="code">a = {<span class="kw">True</span>: <span class="str">'a'</span>, <span class="str">'a'</span>: <span class="num">1</span>, <span class="num">2</span>: <span class="kw">False</span>, <span class="num">3.14</span>: <span class="str">'pi'</span>}</pre>
+    <div class="kv-wrap" id="heteroKv"></div>
+    <div class="warn">Quirk: <code>True == 1</code> in Python, so <code>{True: 'a', 1: 'b'}</code> actually has only ONE key!</div>
+  </div>
+</div>
+
+<!-- ========== DICT CRUD ========== -->
+<div class="panel" id="panel-dcrud">
+  <div class="card">
+    <h3>Live dictionary <span class="badge" id="dSize">len = 0</span></h3>
+    <p style="font-size:12px;color:#8fa3bd;margin-top:0">Every action updates the code AND the dictionary below. Undo to revert.</p>
+    <pre class="code" id="dCode"></pre>
+    <h4>Current state</h4>
+    <div class="kv-wrap" id="dViz"></div>
+    <div class="big-vars">
+      <div class="big-var"><div class="lbl">len(d)</div><div class="v" id="dLenBig">0</div></div>
+      <div class="big-var"><div class="lbl">last action</div><div class="v" id="dLast" style="font-size:13px">—</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Playground</h3>
+    <div class="modes">
+      <button class="mode-chip active" data-dpreset="nick">Nicknames</button>
+      <button class="mode-chip" data-dpreset="ages">Ages</button>
+      <button class="mode-chip" data-dpreset="empty">Empty</button>
+    </div>
+    <div class="row">
+      <label class="inline">key <input id="dKey" type="text" value="Manish"></label>
+      <label class="inline">value <input id="dVal" type="text" value="Monu"></label>
+      <label class="inline">default <input id="dDef" type="text" value="Oye" style="width:80px"></label>
+    </div>
+    <h4>🟢 Insert / Update</h4>
+    <div class="row">
+      <button class="btn go" data-d="set">d[key] = value</button>
+      <button class="btn go" data-d="update">d.update(…)</button>
+    </div>
+    <h4>🔵 Access</h4>
+    <div class="row">
+      <button class="btn alt" data-d="getBracket">d[key]</button>
+      <button class="btn alt" data-d="get">d.get(key)</button>
+      <button class="btn alt" data-d="getDef">d.get(key, default)</button>
+    </div>
+    <h4>🟡 Delete</h4>
+    <div class="row">
+      <button class="btn warn" data-d="pop">d.pop(key)</button>
+      <button class="btn warn" data-d="popDef">d.pop(key, default)</button>
+      <button class="btn warn" data-d="del">del d[key]</button>
+    </div>
+    <h4>🔴 Utility</h4>
+    <div class="row">
+      <button class="btn" data-d="len">len(d)</button>
+      <button class="btn" data-d="undo">↶ Undo</button>
+      <button class="btn" data-d="reset">↺ Reset</button>
+    </div>
+    <div class="output" id="dOut"></div>
+  </div>
+</div>
+
+<!-- ========== ITERATE & IN ========== -->
+<div class="panel" id="panel-diter">
+  <div class="card">
+    <h3>Iterating a dictionary <span class="badge" id="iBadge">step 0 / 0</span></h3>
+    <div class="modes" id="iModes">
+      <button class="mode-chip active" data-imode="keys">for key in d.keys()</button>
+      <button class="mode-chip" data-imode="values">for v in d.values()</button>
+      <button class="mode-chip" data-imode="items">for k,v in d.items()</button>
+    </div>
+    <pre class="code" id="iCode"></pre>
+    <div class="row">
+      <button class="btn go" id="iStep">▶ Step</button>
+      <button class="btn alt" id="iAuto">⏩ Auto</button>
+      <button class="btn warn" id="iReset">↺ Reset</button>
+      <label class="inline">speed <input id="iSpeed" type="range" min="150" max="1200" value="600"></label>
+    </div>
+    <div class="big-vars">
+      <div class="big-var"><div class="lbl">key</div><div class="v" id="iK">—</div></div>
+      <div class="big-var"><div class="lbl">value</div><div class="v" id="iV">—</div></div>
+    </div>
+
+    <h4>📜 Print feed (live output)</h4>
+    <div class="feed" id="iFeed"></div>
+
+    <h4 style="margin-top:10px">🔍 Membership check (<code>in</code>)</h4>
+    <div class="row">
+      <label class="inline">check <input id="iCheck" type="text" value="Kusum"></label>
+      <button class="btn alt" id="iInKey">in d</button>
+      <button class="btn alt" id="iInVal">in d.values()</button>
+    </div>
+    <div id="iInResult" class="key-result" style="display:none"></div>
+    <div class="warn"><code>value in dict</code> only checks <b>keys</b>! Use <code>value in d.values()</code> to check values.</div>
+  </div>
+  <div class="card">
+    <h3>Nicknames dictionary</h3>
+    <p style="font-size:12px;color:#8fa3bd;margin-top:0">The active row pulses — its key and value are read in the current iteration. Earlier rows are marked ✓ as done.</p>
+    <div class="kv-wrap" id="iViz"></div>
+  </div>
+</div>
+
+<!-- ========== FREQUENCY ========== -->
+<div class="panel" id="panel-freq">
+  <div class="card">
+    <h3>Character Frequency Counter</h3>
+    <div class="modes">
+      <button class="mode-chip active" data-fmode="long">Long way (if / else)</button>
+      <button class="mode-chip" data-fmode="short">Short way (.get)</button>
+    </div>
+    <pre class="code" id="fCode"></pre>
+    <div class="tip">Walks character by character. For each character the active line is highlighted, and the dictionary updates in place.</div>
+
+    <h4>🔤 Input</h4>
+    <div class="row">
+      <label class="inline" style="flex:1">string <input id="fIn" type="text" value="Aakar Sharma" style="flex:1;min-width:220px"></label>
+    </div>
+    <div class="row">
+      <button class="btn warn" data-fp="Aakar Sharma">📛 Name</button>
+      <button class="btn warn" data-fp="hello world">👋 hello world</button>
+      <button class="btn warn" data-fp="mississippi">🏞️ mississippi</button>
+      <button class="btn warn" data-fp="abc abc abc">🔁 abc abc abc</button>
+    </div>
+    <div class="row">
+      <button class="btn go" id="fPlay">▶ Play</button>
+      <button class="btn alt" id="fInstant">⚡ Instant</button>
+      <button class="btn warn" id="fReset">↺ Reset</button>
+      <label class="inline">speed <input id="fSpeed" type="range" min="80" max="1200" value="350"></label>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Scan + dictionary</h3>
+    <h4>Scanning string <span class="badge" id="fScanBadge">0 / 0</span></h4>
+    <div id="fLetters" class="letters-row" style="min-height:56px; margin-bottom:14px"></div>
+
+    <h4>Decision</h4>
+    <div id="fDecision" class="key-result" style="display:none"></div>
+
+    <h4 style="margin-top:10px">freq dictionary</h4>
+    <div class="dict-wrap">
+      <div class="braces">{<div class="inner kv-wrap" id="fViz" style="margin:0"></div>}</div>
+    </div>
+    <div class="big-vars">
+      <div class="big-var"><div class="lbl">current char</div><div class="v" id="fCur">—</div></div>
+      <div class="big-var"><div class="lbl">unique keys</div><div class="v" id="fUniq">0</div></div>
+      <div class="big-var"><div class="lbl">max frequency</div><div class="v" id="fMax">—</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SETS INTRO ========== -->
+<div class="panel" id="panel-sintro">
+  <div class="card">
+    <h3>Try a literal — duplicates vanish</h3>
+    <p style="font-size:12px;color:var(--fg-3);margin-top:0">Type a comma-separated list. Click <b>▶ Build</b> to watch the set absorb items one by one — duplicates poof away.</p>
+    <div class="row">
+      <label class="inline" style="flex:1">values
+        <input id="sLitIn" type="text" value="red, green, blue, red, green, blue" style="flex:1;min-width:240px">
+      </label>
+      <button class="btn go" id="sLitPlay">▶ Build</button>
+      <button class="btn alt" id="sLitInstant">⚡ Instant</button>
+    </div>
+    <h4>Incoming stream</h4>
+    <div id="sLitStream" class="letters-row" style="min-height:40px"></div>
+    <h4>Set (only unique items kept)</h4>
+    <div class="setviz" id="sLitSet"></div>
+    <div class="big-vars">
+      <div class="big-var"><div class="lbl">seen</div><div class="v" id="sLitSeen">0</div></div>
+      <div class="big-var"><div class="lbl">len(set)</div><div class="v" id="sLitLen">0</div></div>
+      <div class="big-var"><div class="lbl">dropped duplicates</div><div class="v" id="sLitDrop">0</div></div>
+    </div>
+
+    <div class="warn">⚠️ <code>{}</code> is an <b>empty dict</b>, not a set. Use <code>set()</code> for an empty set: <code>type(set())</code> → <code>set</code>.</div>
+  </div>
+  <div class="card">
+    <h3>Operations sandbox</h3>
+    <pre class="code" id="sCode"></pre>
+    <div class="modes">
+      <button class="mode-chip active" data-spreset="colors">🎨 Colors</button>
+      <button class="mode-chip" data-spreset="nums">🔢 Numbers</button>
+      <button class="mode-chip" data-spreset="empty">📭 Empty</button>
+    </div>
+    <div class="row">
+      <label class="inline">value <input id="sVal" type="text" value="black"></label>
+      <label class="inline">iterable <input id="sIter" type="text" value="white, blue" style="width:160px"></label>
+    </div>
+    <h4>🟢 Add</h4>
+    <div class="row">
+      <button class="btn go" data-s="add">s.add(value)</button>
+      <button class="btn go" data-s="update">s.update(iterable)</button>
+    </div>
+    <h4>🔴 Remove</h4>
+    <div class="row">
+      <button class="btn warn" data-s="remove">s.remove(value)</button>
+      <button class="btn warn" data-s="discard">s.discard(value)</button>
+      <button class="btn warn" data-s="pop">s.pop()</button>
+      <button class="btn warn" data-s="clear">s.clear()</button>
+    </div>
+    <h4>🔵 Query</h4>
+    <div class="row">
+      <button class="btn alt" data-s="in">value in s</button>
+      <button class="btn alt" data-s="len">len(s)</button>
+      <button class="btn" data-s="reset">↺ Reset</button>
+    </div>
+    <h4>Current set <span class="badge" id="sBadge">size 0</span></h4>
+    <div class="setviz" id="sViz"></div>
+    <div class="output" id="sOut"></div>
+  </div>
+</div>
+
+<!-- ========== SET MATH ========== -->
+<div class="panel" id="panel-smath">
+  <div class="card">
+    <h3>Union · Intersection · Difference</h3>
+    <p style="font-size:12px;color:#8fa3bd;margin-top:0">Pick an operation; the zones below light up with what's included. All ops return a <b>new set</b>.</p>
+    <pre class="code" id="vCode"></pre>
+    <div class="modes" id="vModes">
+      <button class="mode-chip active" data-vop="union">A ∪ B (union)</button>
+      <button class="mode-chip" data-vop="inter">A ∩ B (intersection)</button>
+      <button class="mode-chip" data-vop="diffA">A − B</button>
+      <button class="mode-chip" data-vop="diffB">B − A</button>
+      <button class="mode-chip" data-vop="sym">A △ B (symmetric)</button>
+    </div>
+    <div class="row">
+      <label class="inline" style="flex:1">A = <input id="vA" type="text" value="Pizza, Noodles, Pasta, Chocolates, Burger" style="flex:1;min-width:220px"></label>
+    </div>
+    <div class="row">
+      <label class="inline" style="flex:1">B = <input id="vB" type="text" value="Pizza, Croissant, Avocado" style="flex:1;min-width:220px"></label>
+    </div>
+    <div class="row">
+      <button class="btn warn" id="vPresetFood">🍕 Foods</button>
+      <button class="btn warn" id="vPresetNums">🔢 Numbers</button>
+      <button class="btn warn" id="vPresetColors">🎨 Colors</button>
+    </div>
+    <div class="big-vars">
+      <div class="big-var"><div class="lbl">|A|</div><div class="v" id="vLenA">0</div></div>
+      <div class="big-var"><div class="lbl">|B|</div><div class="v" id="vLenB">0</div></div>
+      <div class="big-var"><div class="lbl">|result|</div><div class="v" id="vLenR">0</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Visual zones</h3>
+    <p style="font-size:12px;color:#8fa3bd;margin-top:0">Items sit in the zone they belong to. Zones that contribute to the current operation <b>glow gold</b>.</p>
+    <div class="venn-preview">
+      <svg viewBox="0 0 380 180" preserveAspectRatio="xMidYMid meet">
+        <ellipse class="zone" id="vPrevA" cx="140" cy="90" rx="110" ry="75" fill="#06b6d4" stroke="#06b6d4" stroke-width="2"/>
+        <ellipse class="zone" id="vPrevB" cx="240" cy="90" rx="110" ry="75" fill="#c084fc" stroke="#c084fc" stroke-width="2"/>
+        <text x="55"  y="28" fill="#06b6d4" font-weight="800" font-size="18" font-family="JetBrains Mono">A</text>
+        <text x="320" y="28" fill="#c084fc" font-weight="800" font-size="18" font-family="JetBrains Mono">B</text>
+      </svg>
+    </div>
+    <div class="venn-zones">
+      <div class="vzone a" id="zoneOnlyA">
+        <div class="lbl">only A (A − B)</div>
+        <div class="items" id="itemsOnlyA"></div>
+      </div>
+      <div class="vzone inter" id="zoneInter">
+        <div class="lbl">A ∩ B</div>
+        <div class="items" id="itemsInter"></div>
+      </div>
+      <div class="vzone b" id="zoneOnlyB">
+        <div class="lbl">only B (B − A)</div>
+        <div class="items" id="itemsOnlyB"></div>
+      </div>
+    </div>
+    <h4>Result</h4>
+    <div class="setviz" id="vResult"></div>
+    <div class="output" id="vOut"></div>
+  </div>
+</div>
+
+<!-- ========== UNIQUE WORDS ========== -->
+<div class="panel" id="panel-uniq">
+  <div class="card">
+    <h3>Count unique words</h3>
+    <pre class="code">sentence = <span class="fn">input</span>()
+words = sentence.<span class="fn">split</span>(<span class="str">' '</span>)
+s     = <span class="fn">set</span>(words)
+<span class="fn">print</span>(<span class="fn">len</span>(s))
+<span class="fn">print</span>(s)</pre>
+
+    <h4>✍️ Your sentence</h4>
+    <p style="font-size:12px;color:#8fa3bd;margin-top:0">Type anything — multi-line works too. Duplicates glow red on the left, the set on the right shows only unique words.</p>
+    <textarea id="uIn" class="sentence" spellcheck="false">This is a sentence. This is not a paragraph.</textarea>
+    <div class="row">
+      <button class="btn warn" data-upreset="This is a sentence. This is not a paragraph.">Sample 1</button>
+      <button class="btn warn" data-upreset="to be or not to be that is the question">Hamlet</button>
+      <button class="btn warn" data-upreset="the quick brown fox jumps over the lazy dog">Pangram</button>
+      <button class="btn warn" data-upreset="apple banana apple cherry banana date">Fruits</button>
+      <button class="btn alt" id="uClear">Clear</button>
+    </div>
+    <div class="tip">💡 The set ignores order and drops duplicates automatically — no <code>if x in seen</code> needed.</div>
+  </div>
+  <div class="card">
+    <h3>Live splitter</h3>
+    <h4>all words (raw split) <span class="badge" id="uRawLen">0</span></h4>
+    <div class="setviz" id="uRaw"></div>
+    <h4>unique words (set) <span class="badge" id="uSetLen">0</span></h4>
+    <div class="setviz" id="uSet"></div>
+    <div class="big-vars">
+      <div class="big-var"><div class="lbl">len(words)</div><div class="v" id="uLenAll">0</div></div>
+      <div class="big-var"><div class="lbl">len(set)</div><div class="v" id="uLenSet">0</div></div>
+      <div class="big-var"><div class="lbl">duplicates removed</div><div class="v" id="uDup">0</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ THEME ============ */
+(function(){
+  const KEY='sd_theme';
+  const apply=t=>{document.body.classList.toggle('light',t==='light');
+    document.getElementById('themeToggle').textContent=t==='light'?'☀️':'🌙';};
+  apply(localStorage.getItem(KEY)||'dark');
+  document.getElementById('themeToggle').onclick=()=>{
+    const n=document.body.classList.contains('light')?'dark':'light';
+    localStorage.setItem(KEY,n); apply(n);
+  };
+})();
+
+/* ============ TABS ============ */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick = ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('panel-'+t.dataset.tab).classList.add('active');
+  };
+});
+
+/* ============ helpers ============ */
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function reprPy(v){
+  if(v===null||v===undefined) return 'None';
+  if(typeof v==='string') return `'${v}'`;
+  if(typeof v==='boolean') return v?'True':'False';
+  if(Array.isArray(v)) return '['+v.map(reprPy).join(', ')+']';
+  if(v && v.__tuple) return '('+v.items.map(reprPy).join(', ')+')';
+  return String(v);
+}
+function reprDict(obj, order){
+  const entries = order ? order.map(k=>[k,obj[k]]) : Object.entries(obj);
+  return '{' + entries.map(([k,v])=>`${reprPy(k)}: ${reprPy(v)}`).join(', ') + '}';
+}
+function reprSet(arr){ return '{' + arr.map(reprPy).join(', ') + '}'; }
+function toast(msg, kind='ok'){
+  const wrap=document.getElementById('toasts');
+  const t=document.createElement('div'); t.className='toast '+(kind==='ok'?'':kind);
+  t.textContent=msg; wrap.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(40px)'; t.style.transition='all .3s'; }, 1800);
+  setTimeout(()=>t.remove(), 2200);
+}
+function log(id, text, cls){
+  const o=document.getElementById(id); const sp=document.createElement('span');
+  if(cls) sp.className=cls; sp.textContent=text+'\n'; o.appendChild(sp); o.scrollTop=o.scrollHeight;
+}
+function clearLog(id){ document.getElementById(id).innerHTML=''; }
+function bump(el){ if(!el) return; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+
+function renderKV(id, obj, order, opts={}){
+  const el=document.getElementById(id); el.innerHTML='';
+  const keys = order || Object.keys(obj);
+  if(keys.length===0){ el.innerHTML='<div style="color:#64748b;font-size:12px;padding:10px">(empty)</div>'; return; }
+  keys.forEach(k=>{
+    const row=document.createElement('div'); row.className='kv-row';
+    if(opts.hl && opts.hl.includes(k)) row.classList.add('hl');
+    row.innerHTML = `<span class="key">${escapeHtml(reprPy(k))}</span><span class="arrow">→</span><span class="val">${escapeHtml(reprPy(obj[k]))}</span>`;
+    if(opts.deletable){
+      const btn=document.createElement('button'); btn.className='x'; btn.textContent='✕';
+      btn.onclick=()=>opts.onDelete(k); row.appendChild(btn);
+    }
+    el.appendChild(row);
+  });
+}
+function renderSet(id, arr, opts={}){
+  const el=document.getElementById(id); el.innerHTML='';
+  if(arr.length===0){ el.innerHTML='<div style="color:#64748b;font-size:12px;padding:6px 10px">(empty set)</div>'; return; }
+  arr.forEach(v=>{
+    const d=document.createElement('div'); d.className='schip';
+    if(opts.kind) d.classList.add(opts.kind);
+    if(opts.hl && opts.hl.includes(v)) d.classList.add('hl');
+    if(opts.common && opts.common.includes(v)) d.classList.add('common');
+    d.textContent = typeof v==='string'?v:reprPy(v);
+    el.appendChild(d);
+  });
+}
+
+/* ================================================================= */
+/* DICT INTRO — duplicate insert walkthrough + key checker           */
+/* ================================================================= */
+// duplicate-key walkthrough
+const DUP_STEPS = [
+  { k:'a', v:1 },
+  { k:'b', v:2 },
+  { k:'a', v:10 },
+  { k:'c', v:3 },
+  { k:'b', v:20 },
+];
+let dupIdx = 0, dupDict = {}, dupOrder = [], dupTimer = null;
+
+function dupRenderCode(highlight){
+  const lines = DUP_STEPS.map((s,i)=>{
+    const cls = i===highlight ? ' active' : '';
+    return `<span class="ln${cls}">d[${reprPy(s.k)}] = ${reprPy(s.v)}</span>`;
+  });
+  document.getElementById('dupCode').innerHTML = lines.join('\n');
+}
+function dupDraw(hl){
+  renderKV('dupViz', dupDict, dupOrder, {hl:hl?[hl]:[]});
+  document.getElementById('dupStepN').textContent = `${dupIdx} / ${DUP_STEPS.length}`;
+  document.getElementById('dupLen').textContent = dupOrder.length;
+  ['dupStepN','dupLen'].forEach(id=>bump(document.getElementById(id)));
+}
+function dupStep(){
+  if(dupIdx >= DUP_STEPS.length){
+    if(dupTimer){ clearInterval(dupTimer); dupTimer=null; document.getElementById('dupAuto').textContent='⏩ Auto'; }
+    dupRenderCode(-1); toast('walkthrough complete');
+    return false;
+  }
+  const s = DUP_STEPS[dupIdx];
+  const existed = s.k in dupDict;
+  dupDict[s.k] = s.v;
+  if(!existed) dupOrder.push(s.k);
+  dupRenderCode(dupIdx);
+  dupDraw(s.k);
+  toast(existed ? `key '${s.k}' overwritten → ${s.v}` : `new key '${s.k}' added`, existed?'info':'ok');
+  dupIdx++;
+  return true;
+}
+function dupReset(){
+  if(dupTimer){ clearInterval(dupTimer); dupTimer=null; document.getElementById('dupAuto').textContent='⏩ Auto'; }
+  dupIdx = 0; dupDict = {}; dupOrder = [];
+  dupRenderCode(-1); dupDraw(null);
+}
+document.getElementById('dupStep').onclick = ()=>{
+  if(dupTimer){ clearInterval(dupTimer); dupTimer=null; document.getElementById('dupAuto').textContent='⏩ Auto'; }
+  dupStep();
+};
+document.getElementById('dupAuto').onclick = ()=>{
+  if(dupTimer){ clearInterval(dupTimer); dupTimer=null; document.getElementById('dupAuto').textContent='⏩ Auto'; return; }
+  document.getElementById('dupAuto').textContent='⏸ Pause';
+  dupTimer = setInterval(()=>{ if(!dupStep()){} }, 900);
+};
+document.getElementById('dupReset').onclick = dupReset;
+dupReset();
+
+// key-type checker
+function classifyKey(raw){
+  raw = raw.trim();
+  if(raw==='') return { kind:'empty' };
+  if(/^\[.*\]$/.test(raw)) return { kind:'list', ok:false };
+  if(/^\{.*\}$/.test(raw) && raw.includes(':')) return { kind:'dict', ok:false };
+  if(/^\{.*\}$/.test(raw)) return { kind:'set', ok:false };
+  if(/^\(.*\)$/.test(raw)) return { kind:'tuple', ok:true };
+  if(/^-?\d+$/.test(raw)) return { kind:'int', ok:true };
+  if(/^-?\d+\.\d+$/.test(raw)) return { kind:'float', ok:true };
+  if(/^(True|False)$/.test(raw)) return { kind:'bool', ok:true };
+  if(/^['"].*['"]$/.test(raw)) return { kind:'str', ok:true };
+  return { kind:'str', ok:true };
+}
+function showKeyResult(raw, val){
+  const res = document.getElementById('kResult');
+  const r = classifyKey(raw);
+  res.style.display = 'block';
+  if(r.kind==='empty'){ res.className='key-result bad'; res.textContent='empty — enter something'; return; }
+  if(r.ok){
+    res.className='key-result ok';
+    res.innerHTML = `✓ <b>${r.kind}</b> is hashable (immutable). &nbsp;<code>d = {${escapeHtml(raw)}: ${reprPy(val)}}</code> ✓`;
+    toast(`${r.kind} ✓ valid key`);
+  } else {
+    res.className='key-result bad';
+    res.innerHTML = `✗ <b>TypeError</b>: unhashable type: <code>'${r.kind}'</code>`;
+    toast(`${r.kind} can't be a key`, 'err');
+  }
+}
+document.getElementById('kTry').onclick = ()=>{
+  showKeyResult(document.getElementById('kInput').value, document.getElementById('kVal').value);
+};
+document.querySelectorAll('#panel-dintro button[data-kex]').forEach(b=>{
+  b.onclick = ()=>{
+    document.getElementById('kInput').value = b.dataset.kex;
+    showKeyResult(b.dataset.kex, document.getElementById('kVal').value);
+  };
+});
+document.getElementById('kInput').addEventListener('input', ()=>{
+  showKeyResult(document.getElementById('kInput').value, document.getElementById('kVal').value);
+});
+showKeyResult('(1, 2, 3)', 'alpha');
+
+// heterogeneous example
+renderKV('heteroKv', { true: 'a', 'a': 1, 2: false, 3.14: 'pi' }, [true, 'a', 2, 3.14]);
+
+/* ================================================================= */
+/* DICT CRUD                                                         */
+/* ================================================================= */
+const DP = {
+  nick:  { keys:['Madhuri','Vinoth','Shubham','Kusum','Aakar'], vals:['Sweety','Appu','Zoo Zoo','ku ku','Golu'] },
+  ages:  { keys:['alice','bob','carol'], vals:[30,25,28] },
+  empty: { keys:[], vals:[] },
+};
+let dPreset='nick';
+let dDict = {}; let dOrder = []; let dHistory = []; let dUndoStack = [];
+
+function dLoadPreset(){
+  const p = DP[dPreset];
+  dDict = {}; dOrder = [];
+  p.keys.forEach((k,i)=>{ dDict[k]=p.vals[i]; dOrder.push(k); });
+  dHistory = []; dUndoStack = [];
+  drawD();
+}
+function dSnapshot(){ dUndoStack.push({d:{...dDict}, order:[...dOrder], history:[...dHistory]}); if(dUndoStack.length>30) dUndoStack.shift(); }
+function dSetLast(t){ document.getElementById('dLast').textContent=t; bump(document.getElementById('dLast')); }
+function drawD(){
+  renderKV('dViz', dDict, dOrder, {deletable:true, onDelete:(k)=>{ dSnapshot(); delete dDict[k]; dOrder = dOrder.filter(x=>x!==k); dHistory.push(`<span class="kw">del</span> d[${reprPy(k)}]`); dSetLast(`del d[${reprPy(k)}]`); toast(`deleted ${reprPy(k)}`); drawD(); }});
+  document.getElementById('dSize').textContent = `len = ${dOrder.length}`;
+  const lb = document.getElementById('dLenBig'); lb.textContent = dOrder.length; bump(lb);
+  const code = document.getElementById('dCode');
+  let html = `d = ${escapeHtml(reprDict(dDict, dOrder))}\n`;
+  if(dHistory.length){ html += `\n<span class="cm"># your actions</span>\n` + dHistory.join('\n'); }
+  code.innerHTML = html;
+}
+function parseVal(s){
+  if(s==='True') return true;
+  if(s==='False') return false;
+  if(s==='None') return null;
+  if(/^-?\d+$/.test(s)) return parseInt(s,10);
+  if(/^-?\d+\.\d+$/.test(s)) return parseFloat(s);
+  return s;
+}
+document.querySelectorAll('#panel-dcrud .mode-chip[data-dpreset]').forEach(chip=>{
+  chip.onclick=()=>{
+    document.querySelectorAll('#panel-dcrud .mode-chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    dPreset = chip.dataset.dpreset; dLoadPreset();
+    clearLog('dOut'); toast(`preset → ${dPreset}`, 'info');
+  };
+});
+document.querySelectorAll('#panel-dcrud button[data-d]').forEach(b=>{
+  b.onclick = ()=>{
+    const op = b.dataset.d;
+    const k = document.getElementById('dKey').value;
+    const v = parseVal(document.getElementById('dVal').value);
+    const def = parseVal(document.getElementById('dDef').value);
+    clearLog('dOut');
+    switch(op){
+      case 'set':
+        dSnapshot();
+        if(!(k in dDict)) dOrder.push(k);
+        dDict[k] = v;
+        dHistory.push(`d[${reprPy(k)}] = ${reprPy(v)}`);
+        dSetLast(`d[${reprPy(k)}] = ${reprPy(v)}`); toast(`set ${reprPy(k)}`);
+        log('dOut', `d = ${reprDict(dDict, dOrder)}`);
+        break;
+      case 'update':
+        dSnapshot();
+        if(!(k in dDict)) dOrder.push(k);
+        dDict[k] = v;
+        dHistory.push(`d.<span class="fn">update</span>({${reprPy(k)}: ${reprPy(v)}})`);
+        dSetLast(`update({${reprPy(k)}: ${reprPy(v)}})`); toast('updated');
+        log('dOut', `d = ${reprDict(dDict, dOrder)}`);
+        break;
+      case 'getBracket':
+        if(!(k in dDict)){ log('dOut', `KeyError: ${reprPy(k)}`, 'err'); toast('KeyError','err'); return; }
+        log('dOut', `d[${reprPy(k)}] = ${reprPy(dDict[k])}`);
+        dSetLast(`d[${reprPy(k)}] = ${reprPy(dDict[k])}`); toast('got value');
+        renderKV('dViz', dDict, dOrder, {hl:[k], deletable:true, onDelete:(kk)=>{document.getElementById('dKey').value=kk;}});
+        return;
+      case 'get':
+        log('dOut', `d.get(${reprPy(k)}) = ${reprPy(dDict[k]===undefined?null:dDict[k])}`);
+        dSetLast(`get(${reprPy(k)})`); toast(dDict[k]===undefined?'None returned':'got value','info');
+        if(dDict[k]!==undefined) renderKV('dViz', dDict, dOrder, {hl:[k], deletable:true, onDelete:(kk)=>{document.getElementById('dKey').value=kk;}});
+        return;
+      case 'getDef':
+        log('dOut', `d.get(${reprPy(k)}, ${reprPy(def)}) = ${reprPy(dDict[k]===undefined?def:dDict[k])}`);
+        dSetLast(`get(${reprPy(k)}, default)`); toast('ok','info');
+        if(dDict[k]!==undefined) renderKV('dViz', dDict, dOrder, {hl:[k], deletable:true, onDelete:(kk)=>{document.getElementById('dKey').value=kk;}});
+        return;
+      case 'pop':
+        if(!(k in dDict)){ log('dOut',`KeyError: ${reprPy(k)}`,'err'); toast('KeyError','err'); return; }
+        dSnapshot();
+        { const x = dDict[k]; delete dDict[k]; dOrder=dOrder.filter(x=>x!==k);
+          dHistory.push(`d.<span class="fn">pop</span>(${reprPy(k)})   <span class="cm"># → ${reprPy(x)}</span>`);
+          log('dOut', `d.pop(${reprPy(k)}) = ${reprPy(x)}`);
+          dSetLast(`pop(${reprPy(k)}) = ${reprPy(x)}`); toast(`popped ${reprPy(k)}`); }
+        break;
+      case 'popDef':
+        if(!(k in dDict)){
+          log('dOut', `d.pop(${reprPy(k)}, ${reprPy(def)}) = ${reprPy(def)}`);
+          dSetLast('pop returned default'); toast('used default','info'); return;
+        }
+        dSnapshot();
+        { const x = dDict[k]; delete dDict[k]; dOrder=dOrder.filter(x=>x!==k);
+          dHistory.push(`d.<span class="fn">pop</span>(${reprPy(k)}, ${reprPy(def)})   <span class="cm"># → ${reprPy(x)}</span>`);
+          log('dOut', `d.pop(${reprPy(k)}, ${reprPy(def)}) = ${reprPy(x)}`);
+          dSetLast(`pop → ${reprPy(x)}`); toast(`popped ${reprPy(k)}`); }
+        break;
+      case 'del':
+        if(!(k in dDict)){ log('dOut',`KeyError: ${reprPy(k)}`,'err'); toast('KeyError','err'); return; }
+        dSnapshot();
+        delete dDict[k]; dOrder=dOrder.filter(x=>x!==k);
+        dHistory.push(`<span class="kw">del</span> d[${reprPy(k)}]`);
+        log('dOut', `del d[${reprPy(k)}] → ${reprDict(dDict, dOrder)}`);
+        dSetLast(`del d[${reprPy(k)}]`); toast(`deleted ${reprPy(k)}`);
+        break;
+      case 'len':
+        log('dOut', `len(d) = ${dOrder.length}`);
+        dSetLast(`len = ${dOrder.length}`); toast(`len = ${dOrder.length}`,'info');
+        return;
+      case 'undo':
+        if(dUndoStack.length===0){ toast('nothing to undo','err'); return; }
+        const s = dUndoStack.pop();
+        dDict = s.d; dOrder = s.order; dHistory = s.history;
+        dSetLast('undo'); toast('undone');
+        break;
+      case 'reset':
+        dLoadPreset(); clearLog('dOut'); dSetLast('reset'); toast('reset');
+        return;
+    }
+    drawD();
+  };
+});
+dLoadPreset();
+
+/* ================================================================= */
+/* ITERATE                                                           */
+/* ================================================================= */
+const NICK = {
+  keys: ['Madhuri','Vinoth','Shubham','Kusum','Manish'],
+  vals: ['Sweety','Appu','Zoo Zoo','Ku Ku','Monu'],
+};
+const NICK_DICT = {}; NICK.keys.forEach((k,i)=>NICK_DICT[k]=NICK.vals[i]);
+let iMode='keys', iTimer=null, iStep=0, iDoneKeys=[];
+
+function renderIterCode(activeLine){
+  let lines;
+  if(iMode==='keys'){
+    lines = [
+      `<span class="kw">for</span> key <span class="kw">in</span> nicknames.<span class="fn">keys</span>():`,
+      `    <span class="fn">print</span>(<span class="str">f"{key}'s nickname is {nicknames[key]}"</span>)`,
+    ];
+  } else if(iMode==='values'){
+    lines = [
+      `<span class="kw">for</span> value <span class="kw">in</span> nicknames.<span class="fn">values</span>():`,
+      `    <span class="fn">print</span>(value)`,
+    ];
+  } else {
+    lines = [
+      `<span class="kw">for</span> key, value <span class="kw">in</span> nicknames.<span class="fn">items</span>():`,
+      `    <span class="fn">print</span>(<span class="str">f"{key}'s nickname is {value}"</span>)`,
+    ];
+  }
+  document.getElementById('iCode').innerHTML = lines.map((l,i)=>`<span class="ln${i===activeLine?' active':''}">${l}</span>`).join('\n');
+}
+function drawIViz(hl){
+  const el = document.getElementById('iViz'); el.innerHTML='';
+  NICK.keys.forEach(k=>{
+    const row=document.createElement('div'); row.className='kv-row';
+    const tag = iDoneKeys.includes(k) ? ' ✓' : '';
+    if(k===hl) row.classList.add('hl');
+    row.innerHTML = `<span class="key">${reprPy(k)}</span><span class="arrow">→</span><span class="val">${reprPy(NICK_DICT[k])}</span><span style="font-size:12px;color:${iDoneKeys.includes(k)?'#06d6a0':'transparent'}">${iDoneKeys.includes(k)?'✓':'○'}</span>`;
+    el.appendChild(row);
+  });
+}
+function feedLine(text, hl){
+  const feed = document.getElementById('iFeed');
+  const sp = document.createElement('span'); sp.className='line'+(hl?' hl':'');
+  sp.textContent = text; feed.appendChild(sp);
+  feed.scrollTop = feed.scrollHeight;
+}
+function clearFeed(){ document.getElementById('iFeed').innerHTML=''; }
+function iReset(){
+  if(iTimer){ clearInterval(iTimer); iTimer=null; document.getElementById('iAuto').textContent='⏩ Auto'; }
+  iStep = 0; iDoneKeys = [];
+  clearFeed();
+  document.getElementById('iK').textContent='—';
+  document.getElementById('iV').textContent='—';
+  document.getElementById('iBadge').textContent=`step 0 / ${NICK.keys.length}`;
+  renderIterCode(null);
+  drawIViz(null);
+  document.getElementById('iInResult').style.display='none';
+}
+function iDoStep(){
+  if(iStep>=NICK.keys.length){
+    renderIterCode(null);
+    drawIViz(null);
+    if(iTimer){ clearInterval(iTimer); iTimer=null; document.getElementById('iAuto').textContent='⏩ Auto'; }
+    toast('loop finished ✓');
+    return false;
+  }
+  const k = NICK.keys[iStep]; const v = NICK_DICT[k];
+  drawIViz(k);
+  renderIterCode(1);
+  if(iMode==='keys') {
+    document.getElementById('iK').textContent=k; document.getElementById('iV').textContent=v;
+    feedLine(`${k}'s nickname is ${v}`, true);
+  } else if(iMode==='values') {
+    document.getElementById('iK').textContent='—'; document.getElementById('iV').textContent=v;
+    feedLine(`${v}`, true);
+  } else {
+    document.getElementById('iK').textContent=k; document.getElementById('iV').textContent=v;
+    feedLine(`${k}'s nickname is ${v}`, true);
+  }
+  ['iK','iV'].forEach(id=>bump(document.getElementById(id)));
+  iDoneKeys.push(k);
+  iStep++;
+  document.getElementById('iBadge').textContent=`step ${iStep} / ${NICK.keys.length}`;
+  return true;
+}
+document.getElementById('iStep').onclick = ()=>{
+  if(iTimer){ clearInterval(iTimer); iTimer=null; document.getElementById('iAuto').textContent='⏩ Auto'; }
+  iDoStep();
+};
+document.getElementById('iAuto').onclick = ()=>{
+  if(iTimer){ clearInterval(iTimer); iTimer=null; document.getElementById('iAuto').textContent='⏩ Auto'; return; }
+  document.getElementById('iAuto').textContent='⏸ Pause';
+  const sp = +document.getElementById('iSpeed').value;
+  iTimer = setInterval(()=>{ if(!iDoStep()){} }, sp);
+};
+document.getElementById('iReset').onclick = iReset;
+document.querySelectorAll('#iModes .mode-chip').forEach(chip=>{
+  chip.onclick=()=>{
+    document.querySelectorAll('#iModes .mode-chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    iMode = chip.dataset.imode; iReset();
+  };
+});
+function iShowIn(kind){
+  const v = document.getElementById('iCheck').value;
+  const res = document.getElementById('iInResult'); res.style.display='block';
+  if(kind==='key'){
+    const has = v in NICK_DICT;
+    res.className = 'key-result ' + (has?'ok':'bad');
+    res.innerHTML = `<code>${reprPy(v)} in nicknames</code> → <b>${has?'True':'False'}</b>` +
+      (has?'':` &nbsp;<i>(checks keys only)</i>`);
+    toast(has?'key found':'not a key', has?'ok':'err');
+  } else {
+    const has = Object.values(NICK_DICT).includes(v);
+    res.className = 'key-result ' + (has?'ok':'bad');
+    res.innerHTML = `<code>${reprPy(v)} in nicknames.values()</code> → <b>${has?'True':'False'}</b>`;
+    toast(has?'value found':'not a value', has?'ok':'err');
+  }
+}
+document.getElementById('iInKey').onclick = ()=>iShowIn('key');
+document.getElementById('iInVal').onclick = ()=>iShowIn('val');
+iReset();
+
+/* ================================================================= */
+/* FREQUENCY                                                         */
+/* ================================================================= */
+let fTimer=null, fMode='long';
+
+function renderFCode(activeLine){
+  let lines;
+  if(fMode==='long'){
+    lines = [
+      `s = <span class="fn">input</span>()`,
+      `freq = {}`,
+      `<span class="kw">for</span> char <span class="kw">in</span> s:`,
+      `    <span class="kw">if</span> char <span class="kw">in</span> freq:`,
+      `        freq[char] += <span class="num">1</span>`,
+      `    <span class="kw">else</span>:`,
+      `        freq[char] = <span class="num">1</span>`,
+      `<span class="fn">print</span>(freq)`,
+    ];
+  } else {
+    lines = [
+      `s = <span class="fn">input</span>()`,
+      `freq = {}`,
+      `<span class="kw">for</span> char <span class="kw">in</span> s:`,
+      `    freq[char] = freq.<span class="fn">get</span>(char, <span class="num">0</span>) + <span class="num">1</span>`,
+      `<span class="fn">print</span>(freq)`,
+    ];
+  }
+  document.getElementById('fCode').innerHTML = lines.map((l,i)=>`<span class="ln${i===activeLine?' active':''}">${l}</span>`).join('\n');
+}
+
+function renderFLetters(letters, cursor){
+  const el = document.getElementById('fLetters'); el.innerHTML='';
+  letters.forEach((ch,i)=>{
+    const d=document.createElement('div'); d.className='letter';
+    if(i===cursor) d.classList.add('current');
+    else if(i<cursor) d.classList.add('done');
+    d.innerHTML = (ch===' '?'␣':escapeHtml(ch)) + `<span class="sub">${i}</span>`;
+    el.appendChild(d);
+  });
+  if(letters.length===0) el.innerHTML='<div style="color:#64748b;font-size:12px;padding:10px">(type something)</div>';
+}
+
+function fUpdateStats(freq, order, cursor, total){
+  document.getElementById('fCur').textContent = cursor==null?'—':`'${order.length && cursor<total ? (Object.keys(freq)[0]!==undefined?'' :'')+(arguments[4]||''): ''}'`;
+  // we'll set current char externally
+  document.getElementById('fUniq').textContent = order.length;
+  document.getElementById('fScanBadge').textContent = `${Math.min(cursor??0, total)} / ${total}`;
+  const counts = Object.values(freq);
+  const maxC = counts.length?Math.max(...counts):0;
+  const maxK = order.find(k=>freq[k]===maxC);
+  document.getElementById('fMax').textContent = maxK!==undefined ? `${reprPy(maxK)} → ${maxC}` : '—';
+  ['fCur','fUniq','fMax'].forEach(id=>bump(document.getElementById(id)));
+}
+
+function fShowDecision(ch, existed, newCount){
+  const el = document.getElementById('fDecision');
+  el.style.display='block';
+  const label = ch===' '?"' '":`'${ch}'`;
+  if(fMode==='long'){
+    el.className = 'key-result ' + (existed?'ok':'bad');
+    el.innerHTML = existed
+      ? `🔍 <code>${label} in freq</code> → <b>True</b>  ·  <code>freq[${label}] += 1</code>  →  <b>${newCount}</b>`
+      : `🔍 <code>${label} in freq</code> → <b>False</b>  ·  <code>freq[${label}] = 1</code>  (new key)`;
+  } else {
+    el.className = 'key-result ok';
+    const prev = existed ? newCount - 1 : 0;
+    el.innerHTML = `💡 <code>freq.get(${label}, 0)</code> → <b>${prev}</b>  ·  <code>freq[${label}] = ${prev} + 1</code> → <b>${newCount}</b>`;
+  }
+}
+
+function fReset(){
+  if(fTimer){ clearInterval(fTimer); fTimer=null; document.getElementById('fPlay').textContent='▶ Play'; }
+  renderFCode(null);
+  document.getElementById('fLetters').innerHTML='';
+  renderKV('fViz', {}, []);
+  document.getElementById('fCur').textContent='—';
+  document.getElementById('fUniq').textContent='0';
+  document.getElementById('fMax').textContent='—';
+  document.getElementById('fScanBadge').textContent = `0 / 0`;
+  document.getElementById('fDecision').style.display='none';
+}
+
+function fStep(letters, state){
+  if(state.i >= letters.length){
+    if(fTimer){ clearInterval(fTimer); fTimer=null; document.getElementById('fPlay').textContent='▶ Play'; }
+    renderFCode(fMode==='long'?null:null);
+    renderFLetters(letters, letters.length);
+    const counts = Object.values(state.freq);
+    const maxC = counts.length?Math.max(...counts):0;
+    document.getElementById('fMax').textContent = maxC?`count ${maxC}`:'—';
+    toast('done ✓');
+    return false;
+  }
+  const ch = letters[state.i];
+  const existed = ch in state.freq;
+  // highlight code lines step-by-step
+  if(fMode==='long'){
+    // line 2 = for, 3 = if, 4 = +=, 6 = =1
+    renderFCode(2);
+    // small delay visually handled by timer
+    if(existed) state.freq[ch] += 1;
+    else { state.freq[ch] = 1; state.order.push(ch); }
+  } else {
+    renderFCode(3);
+    if(existed) state.freq[ch] += 1;
+    else { state.freq[ch] = 1; state.order.push(ch); }
+  }
+  renderFLetters(letters, state.i);
+  renderKV('fViz', state.freq, state.order, {hl:[ch]});
+  fShowDecision(ch, existed, state.freq[ch]);
+  document.getElementById('fCur').textContent = ch===' '?"' '":`'${ch}'`;
+  document.getElementById('fUniq').textContent = state.order.length;
+  document.getElementById('fScanBadge').textContent = `${state.i+1} / ${letters.length}`;
+  const counts = Object.values(state.freq);
+  const maxC = counts.length?Math.max(...counts):0;
+  const maxK = state.order.find(k=>state.freq[k]===maxC);
+  document.getElementById('fMax').textContent = maxK!==undefined?`${reprPy(maxK)} → ${maxC}`:'—';
+  ['fCur','fUniq','fMax'].forEach(id=>bump(document.getElementById(id)));
+  state.i++;
+  return true;
+}
+
+function fPlay(){
+  if(fTimer){ clearInterval(fTimer); fTimer=null; document.getElementById('fPlay').textContent='▶ Play'; return; }
+  const s = document.getElementById('fIn').value;
+  const letters = [...s];
+  const state = { i:0, freq:{}, order:[] };
+  fReset();
+  renderFLetters(letters, -1);
+  document.getElementById('fScanBadge').textContent = `0 / ${letters.length}`;
+  document.getElementById('fPlay').textContent = '⏸ Pause';
+  const sp = +document.getElementById('fSpeed').value;
+  fTimer = setInterval(()=>{ if(!fStep(letters, state)){} }, sp);
+}
+
+function fInstant(){
+  if(fTimer){ clearInterval(fTimer); fTimer=null; document.getElementById('fPlay').textContent='▶ Play'; }
+  const s = document.getElementById('fIn').value;
+  const letters = [...s];
+  const freq = {}; const order = [];
+  for(const ch of letters){ if(ch in freq) freq[ch]+=1; else { freq[ch]=1; order.push(ch); } }
+  renderFCode(null);
+  renderFLetters(letters, letters.length);
+  renderKV('fViz', freq, order);
+  document.getElementById('fCur').textContent = letters.length ? `'${letters[letters.length-1]}'` : '—';
+  document.getElementById('fUniq').textContent = order.length;
+  document.getElementById('fScanBadge').textContent = `${letters.length} / ${letters.length}`;
+  const counts = Object.values(freq);
+  const maxC = counts.length?Math.max(...counts):0;
+  const maxK = order.find(k=>freq[k]===maxC);
+  document.getElementById('fMax').textContent = maxK!==undefined?`${reprPy(maxK)} → ${maxC}`:'—';
+  document.getElementById('fDecision').style.display='none';
+}
+
+document.getElementById('fPlay').onclick = fPlay;
+document.getElementById('fInstant').onclick = fInstant;
+document.getElementById('fReset').onclick = fReset;
+document.querySelectorAll('#panel-freq .mode-chip[data-fmode]').forEach(chip=>{
+  chip.onclick=()=>{
+    document.querySelectorAll('#panel-freq .mode-chip[data-fmode]').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    fMode = chip.dataset.fmode; renderFCode(null);
+  };
+});
+document.querySelectorAll('#panel-freq button[data-fp]').forEach(b=>{
+  b.onclick = ()=>{ document.getElementById('fIn').value = b.dataset.fp; fInstant(); };
+});
+document.getElementById('fIn').addEventListener('input', fInstant);
+fInstant();
+
+/* ================================================================= */
+/* SETS INTRO                                                        */
+/* ================================================================= */
+// literal-duplicate absorption demo
+let sLitTimer = null;
+function sLitParse(){
+  return document.getElementById('sLitIn').value.split(',').map(x=>x.trim()).filter(Boolean);
+}
+function sLitStream(items, cursor){
+  const el = document.getElementById('sLitStream'); el.innerHTML='';
+  items.forEach((v,i)=>{
+    const d=document.createElement('div'); d.className='letter'; d.style.minWidth='fit-content'; d.style.padding='6px 10px'; d.style.width='auto';
+    if(i===cursor) d.classList.add('current');
+    else if(i<cursor) d.classList.add('done');
+    d.textContent = v;
+    el.appendChild(d);
+  });
+}
+function sLitStats(seen, total, uniq, dropped){
+  document.getElementById('sLitSeen').textContent = `${seen} / ${total}`;
+  document.getElementById('sLitLen').textContent = uniq;
+  document.getElementById('sLitDrop').textContent = dropped;
+  ['sLitSeen','sLitLen','sLitDrop'].forEach(id=>bump(document.getElementById(id)));
+}
+function sLitInstant(){
+  if(sLitTimer){ clearInterval(sLitTimer); sLitTimer=null; document.getElementById('sLitPlay').textContent='▶ Build'; }
+  const items = sLitParse();
+  const seen = new Set(); items.forEach(v=>seen.add(v));
+  sLitStream(items, items.length-1);
+  renderSet('sLitSet', [...seen]);
+  sLitStats(items.length, items.length, seen.size, items.length - seen.size);
+}
+function sLitPlay(){
+  if(sLitTimer){ clearInterval(sLitTimer); sLitTimer=null; document.getElementById('sLitPlay').textContent='▶ Build'; return; }
+  const items = sLitParse();
+  sLitStream(items, -1);
+  renderSet('sLitSet', []);
+  sLitStats(0, items.length, 0, 0);
+  document.getElementById('sLitPlay').textContent = '⏸ Pause';
+  let i = 0; const seen = new Set(); let dropped = 0;
+  sLitTimer = setInterval(()=>{
+    if(i>=items.length){
+      clearInterval(sLitTimer); sLitTimer=null; document.getElementById('sLitPlay').textContent='▶ Build';
+      toast('set built ✓'); return;
+    }
+    const v = items[i];
+    const isDup = seen.has(v);
+    if(isDup){ dropped++; toast(`duplicate '${v}' dropped`, 'info'); }
+    else { seen.add(v); }
+    sLitStream(items, i);
+    renderSet('sLitSet', [...seen], {hl:isDup?[]:[v]});
+    sLitStats(i+1, items.length, seen.size, dropped);
+    i++;
+  }, 550);
+}
+document.getElementById('sLitPlay').onclick = sLitPlay;
+document.getElementById('sLitInstant').onclick = sLitInstant;
+document.getElementById('sLitIn').addEventListener('input', sLitInstant);
+sLitInstant();
+
+// Operations sandbox
+const SPRESETS = {
+  colors: ['red','green','yellow'],
+  nums:   [1, 2, 3, 4, 5],
+  empty:  [],
+};
+let sPreset = 'colors';
+let sSet = new Set(SPRESETS[sPreset]);
+function sCode(last){
+  document.getElementById('sCode').innerHTML =
+`<span class="cm"># current (preset: ${sPreset})</span>
+s = ${escapeHtml(reprSet([...sSet]))}${last?`\n\n<span class="cm"># last call</span>\n${last}`:''}`;
+}
+function sDraw(hl){
+  renderSet('sViz', [...sSet], {hl:hl?[hl]:[]});
+  document.getElementById('sBadge').textContent = `size ${sSet.size}`;
+}
+function sParseIter(s){ return s.split(',').map(x=>x.trim()).filter(Boolean); }
+
+document.querySelectorAll('#panel-sintro .mode-chip[data-spreset]').forEach(chip=>{
+  chip.onclick = ()=>{
+    document.querySelectorAll('#panel-sintro .mode-chip[data-spreset]').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    sPreset = chip.dataset.spreset;
+    sSet = new Set(SPRESETS[sPreset]);
+    sDraw(null); sCode(null); clearLog('sOut'); toast(`preset → ${sPreset}`, 'info');
+  };
+});
+document.querySelectorAll('#panel-sintro button[data-s]').forEach(b=>{
+  b.onclick=()=>{
+    const op = b.dataset.s;
+    const raw = document.getElementById('sVal').value.trim();
+    const v = isNaN(+raw)||raw===''?raw:+raw;
+    const iter = sParseIter(document.getElementById('sIter').value).map(x=>isNaN(+x)||x===''?x:+x);
+    clearLog('sOut');
+    let last=null, hl=null;
+    switch(op){
+      case 'add':
+        if(sSet.has(v)) { toast(`'${v}' already present — no change`, 'info'); }
+        sSet.add(v); hl=v;
+        last = `s.<span class="fn">add</span>(${reprPy(v)})   <span class="cm"># → ${escapeHtml(reprSet([...sSet]))}</span>`;
+        log('sOut', `add ${reprPy(v)}  →  ${reprSet([...sSet])}`);
+        break;
+      case 'update':
+        iter.forEach(x=>sSet.add(x));
+        last = `s.<span class="fn">update</span>(${escapeHtml(reprPy(iter))})   <span class="cm"># → ${escapeHtml(reprSet([...sSet]))}</span>`;
+        log('sOut', `update ${reprPy(iter)}  →  ${reprSet([...sSet])}`); toast('updated');
+        break;
+      case 'remove':
+        if(!sSet.has(v)){ log('sOut',`KeyError: ${reprPy(v)}`,'err'); toast('KeyError','err'); return; }
+        sSet.delete(v);
+        last = `s.<span class="fn">remove</span>(${reprPy(v)})   <span class="cm"># → ${escapeHtml(reprSet([...sSet]))}</span>`;
+        log('sOut', `removed ${reprPy(v)}`); toast(`removed ${reprPy(v)}`);
+        break;
+      case 'discard':
+        const had = sSet.has(v); sSet.delete(v);
+        last = `s.<span class="fn">discard</span>(${reprPy(v)})   <span class="cm"># no error even if absent → ${escapeHtml(reprSet([...sSet]))}</span>`;
+        log('sOut', had?`discarded ${reprPy(v)}`:`${reprPy(v)} was absent — no error`); toast(had?'discarded':'absent, no error', 'info');
+        break;
+      case 'pop':
+        if(sSet.size===0){ log('sOut','KeyError: pop from empty set','err'); toast('empty','err'); return; }
+        { const one = [...sSet][0]; sSet.delete(one);
+          last = `x = s.<span class="fn">pop</span>()   <span class="cm"># x=${reprPy(one)} (arbitrary!) → ${escapeHtml(reprSet([...sSet]))}</span>`;
+          log('sOut', `pop() removed ${reprPy(one)} (order is arbitrary)`); toast(`popped ${reprPy(one)}`); }
+        break;
+      case 'clear':
+        sSet.clear();
+        last = `s.<span class="fn">clear</span>()   <span class="cm"># → set()</span>`;
+        log('sOut','cleared'); toast('cleared');
+        break;
+      case 'in':
+        { const has = sSet.has(v);
+          log('sOut', `${reprPy(v)} in s  →  ${has?'True':'False'}`);
+          toast(has?'in set ✓':'not in set', has?'ok':'err'); }
+        return;
+      case 'len':
+        log('sOut', `len(s) = ${sSet.size}`); toast(`len = ${sSet.size}`,'info'); return;
+      case 'reset':
+        sSet = new Set(SPRESETS[sPreset]); toast('reset');
+        last = null; break;
+    }
+    sDraw(hl); sCode(last);
+  };
+});
+sCode(null); sDraw(null);
+
+/* ================================================================= */
+/* SET MATH — three-zone layout                                      */
+/* ================================================================= */
+let vOp = 'union';
+function parseSet(s){ return new Set(s.split(',').map(x=>x.trim()).filter(Boolean)); }
+function vCompute(A, B){
+  const inter = new Set([...A].filter(x=>B.has(x)));
+  const onlyA = new Set([...A].filter(x=>!B.has(x)));
+  const onlyB = new Set([...B].filter(x=>!A.has(x)));
+  let result;
+  if(vOp==='union')      result = new Set([...A, ...B]);
+  else if(vOp==='inter') result = inter;
+  else if(vOp==='diffA') result = onlyA;
+  else if(vOp==='diffB') result = onlyB;
+  else                   result = new Set([...onlyA, ...onlyB]);
+  return { inter, onlyA, onlyB, result };
+}
+
+// which zones contribute for each op: [onlyA, inter, onlyB]
+const VZONES = {
+  union: [true, true, true],
+  inter: [false, true, false],
+  diffA: [true, false, false],
+  diffB: [false, false, true],
+  sym:   [true, false, true],
+};
+
+function vRenderCode(A, B, res){
+  const py = arr=>arr.length===0?'set()':'{'+arr.map(v=>`'${v}'`).join(', ')+'}';
+  const exprs = {
+    union: `A.<span class="fn">union</span>(B)             <span class="cm"># or A | B</span>`,
+    inter: `A.<span class="fn">intersection</span>(B)      <span class="cm"># or A &amp; B</span>`,
+    diffA: `A.<span class="fn">difference</span>(B)        <span class="cm"># or A - B</span>`,
+    diffB: `B.<span class="fn">difference</span>(A)        <span class="cm"># or B - A</span>`,
+    sym:   `A.<span class="fn">symmetric_difference</span>(B)  <span class="cm"># or A ^ B</span>`,
+  };
+  document.getElementById('vCode').innerHTML =
+`A = ${escapeHtml(py([...A]))}
+B = ${escapeHtml(py([...B]))}
+
+<span class="fn">print</span>(${exprs[vOp]})
+<span class="cm"># → ${escapeHtml(py([...res]))}</span>`;
+}
+
+function renderZoneItems(id, items, resultSet){
+  const el = document.getElementById(id); el.innerHTML='';
+  if(items.length===0){
+    el.innerHTML = '<span style="color:#64748b;font-size:11px">(empty)</span>';
+    return;
+  }
+  items.forEach(v=>{
+    const c = document.createElement('div'); c.className='schip';
+    if(resultSet.has(v)) c.classList.add('common');
+    c.textContent = v;
+    el.appendChild(c);
+  });
+}
+
+function vDrawZones(parts){
+  const on = VZONES[vOp];  // [onlyA, inter, onlyB]
+  const mapZone = { 0:'zoneOnlyA', 1:'zoneInter', 2:'zoneOnlyB' };
+  [0,1,2].forEach(i=>{
+    const z = document.getElementById(mapZone[i]);
+    z.classList.toggle('dim',  !on[i]);
+    z.classList.toggle('glow',  on[i]);
+  });
+  // venn preview — highlight the whole A / B ellipses if they contribute
+  document.getElementById('vPrevA').classList.toggle('on', on[0] || on[1]);
+  document.getElementById('vPrevB').classList.toggle('on', on[2] || on[1]);
+
+  renderZoneItems('itemsOnlyA', [...parts.onlyA], parts.result);
+  renderZoneItems('itemsInter', [...parts.inter], parts.result);
+  renderZoneItems('itemsOnlyB', [...parts.onlyB], parts.result);
+}
+
+function vRun(){
+  const A = parseSet(document.getElementById('vA').value);
+  const B = parseSet(document.getElementById('vB').value);
+  const parts = vCompute(A, B);
+  vRenderCode(A, B, parts.result);
+  vDrawZones(parts);
+  renderSet('vResult', [...parts.result]);
+  document.getElementById('vLenA').textContent = A.size;
+  document.getElementById('vLenB').textContent = B.size;
+  document.getElementById('vLenR').textContent = parts.result.size;
+  ['vLenA','vLenB','vLenR'].forEach(id=>bump(document.getElementById(id)));
+  clearLog('vOut');
+  log('vOut', `A = ${reprSet([...A])}`);
+  log('vOut', `B = ${reprSet([...B])}`);
+  log('vOut', `result = ${reprSet([...parts.result])}  (size ${parts.result.size})`);
+}
+document.querySelectorAll('#vModes .mode-chip').forEach(chip=>{
+  chip.onclick=()=>{
+    document.querySelectorAll('#vModes .mode-chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    vOp = chip.dataset.vop; vRun();
+  };
+});
+['vA','vB'].forEach(id=>document.getElementById(id).addEventListener('input', vRun));
+document.getElementById('vPresetFood').onclick = ()=>{
+  document.getElementById('vA').value='Pizza, Noodles, Pasta, Chocolates, Burger';
+  document.getElementById('vB').value='Pizza, Croissant, Avocado'; vRun();
+};
+document.getElementById('vPresetNums').onclick = ()=>{
+  document.getElementById('vA').value='1, 2, 3, 4, 5';
+  document.getElementById('vB').value='3, 4, 5, 6, 7'; vRun();
+};
+document.getElementById('vPresetColors').onclick = ()=>{
+  document.getElementById('vA').value='red, green, blue';
+  document.getElementById('vB').value='blue, yellow, black'; vRun();
+};
+vRun();
+
+/* ================================================================= */
+/* UNIQUE WORDS                                                      */
+/* ================================================================= */
+function uRun(){
+  const s = document.getElementById('uIn').value;
+  // sentence.split(' ') — match Python behavior of splitting on single space
+  const words = s.split(' ').filter(Boolean);
+  const seen = new Set(); const dup = new Set();
+  words.forEach(w=>{ if(seen.has(w)) dup.add(w); seen.add(w); });
+  const raw = document.getElementById('uRaw'); raw.innerHTML='';
+  if(words.length===0){ raw.innerHTML='<span style="color:#64748b;font-size:11px;padding:6px">(type a sentence above)</span>'; }
+  words.forEach(w=>{
+    const d=document.createElement('div'); d.className='schip';
+    if(dup.has(w)) d.classList.add('hl');
+    d.textContent = w; raw.appendChild(d);
+  });
+  renderSet('uSet', [...seen]);
+  document.getElementById('uRawLen').textContent = `${words.length}`;
+  document.getElementById('uSetLen').textContent = `${seen.size}`;
+  document.getElementById('uLenAll').textContent = words.length;
+  document.getElementById('uLenSet').textContent = seen.size;
+  document.getElementById('uDup').textContent = words.length - seen.size;
+  ['uLenAll','uLenSet','uDup'].forEach(id=>bump(document.getElementById(id)));
+}
+document.getElementById('uIn').addEventListener('input', uRun);
+document.querySelectorAll('#panel-uniq button[data-upreset]').forEach(b=>{
+  b.onclick = ()=>{ document.getElementById('uIn').value = b.dataset.upreset; uRun(); toast('preset loaded','info'); };
+});
+document.getElementById('uClear').onclick = ()=>{
+  document.getElementById('uIn').value = '';
+  uRun(); document.getElementById('uIn').focus();
+};
+uRun();
+
+</script>
+</body>
+</html>
