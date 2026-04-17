@@ -114,7 +114,7 @@ html, body { height: 100%; }
 body {
   margin: 0;
   min-height: 100vh;
-  padding: var(--s-5) var(--s-5) var(--s-5) calc(232px + var(--s-5));
+  padding: var(--s-5);
   background: var(--bg);
   color: var(--fg);
   font-family: var(--f-body);
@@ -156,24 +156,16 @@ body.light::after {
 body > * { position: relative; z-index: 1; }
 
 /* ----------  TYPOGRAPHY  ---------- */
-/* Title — pinned top of left sidenav */
 h1 {
-  position: fixed;
-  top: var(--s-5);
-  left: var(--s-5);
-  width: 210px;
-  margin: 0;
-  padding: 0 var(--s-3);
+  margin: 0 0 var(--s-1);
   font-family: var(--f-display);
   font-style: italic;
   font-weight: 500;
-  font-size: var(--t-lg);
+  font-size: var(--t-xl);
   line-height: 1.1;
   letter-spacing: -.025em;
   color: var(--fg);
-  text-align: left;
-  z-index: 40;
-  pointer-events: none;
+  text-align: center;
 }
 h1 .accent, h1 em, h1 i { color: var(--accent); font-style: italic; }
 
@@ -183,21 +175,14 @@ h3 { font-family: var(--f-body); font-size: 11px; font-weight: 500; text-transfo
 h4 { font-family: var(--f-body); font-size: var(--t-md); font-weight: 500;
      letter-spacing: -.005em; margin: var(--s-4) 0 var(--s-2); color: var(--fg); }
 
-/* Subtitle — removed from flow; becomes sidebar caption */
 .subtitle {
-  position: fixed;
-  top: calc(var(--s-5) + 42px);
-  left: var(--s-5);
-  width: 210px;
-  margin: 0;
-  padding: 0 var(--s-3);
-  font: 400 var(--t-xs) var(--f-body);
+  margin: 0 auto var(--s-4);
+  font: 400 var(--t-sm) var(--f-body);
   color: var(--fg-3);
-  letter-spacing: .02em;
+  letter-spacing: .005em;
   line-height: 1.4;
-  text-align: left;
-  z-index: 40;
-  pointer-events: none;
+  text-align: center;
+  max-width: 62ch;
 }
 
 p { margin: var(--s-2) 0; color: var(--fg-1); }
@@ -210,92 +195,60 @@ a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transp
     transition: border-color var(--d-fast); }
 a:hover { border-bottom-color: var(--accent); }
 
-/* ----------  NAVIGATION / TABS (vertical sidenav)  ---------- */
+/* ----------  NAVIGATION / TABS (top pill bar)  ---------- */
 .tabs {
-  position: fixed;
-  left: var(--s-5);
-  top: calc(var(--s-5) + 94px);
-  width: 210px;
-  max-height: calc(100vh - var(--s-5) * 2 - 94px);
-  overflow-y: auto;
-  z-index: 40;
-
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: var(--s-2);
-  background: color-mix(in srgb, var(--bg-1) 80%, transparent);
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 2px; padding: var(--s-1);
+  max-width: 1500px; margin: 0 auto var(--s-4);
+  background: color-mix(in srgb, var(--bg-1) 75%, transparent);
   backdrop-filter: blur(18px) saturate(180%);
   -webkit-backdrop-filter: blur(18px) saturate(180%);
   border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  margin: 0;
+  border-radius: var(--r-full);
+  position: sticky; top: var(--s-3); z-index: 40;
 }
 
 .tab {
-  display: block;
-  width: 100%;
-  padding: 9px 14px;
-  text-align: left;
+  padding: 8px 16px;
   background: transparent; border: 0;
   color: var(--fg-2);
-  font: 500 var(--t-sm)/1.2 var(--f-body);
+  font: 500 var(--t-sm)/1 var(--f-body);
   letter-spacing: -.005em;
-  border-radius: var(--r-sm);
+  border-radius: var(--r-full);
   cursor: pointer;
-  transition: color var(--d-fast) var(--e),
-              background var(--d-fast) var(--e),
-              padding-left var(--d-fast) var(--e);
+  transition: color var(--d-fast) var(--e), background var(--d-fast) var(--e);
   white-space: nowrap;
-  position: relative;
 }
 .tab:hover { color: var(--fg); background: var(--bg-2); }
-.tab.active {
-  color: var(--bg);
-  background: var(--fg);
-}
-.tab.active::before {
-  content: ''; position: absolute;
-  left: -2px; top: 6px; bottom: 6px; width: 2px;
-  background: var(--accent);
-  border-radius: var(--r-full);
-}
+.tab.active { color: var(--bg); background: var(--fg); }
 
-/* Single-page files (no .tabs) — reclaim sidebar space */
-body:not(:has(.tabs)) {
-  padding-left: var(--s-5);
-}
-body:not(:has(.tabs)) h1 {
-  position: relative; top: 0; left: 0; width: auto;
-  text-align: center; font-size: var(--t-xl); padding: 0;
-  margin: 0 0 var(--s-2); pointer-events: auto;
-}
-body:not(:has(.tabs)) .subtitle {
-  position: relative; top: 0; left: 0; width: auto;
-  text-align: center; padding: 0; margin: 0 auto var(--s-4);
-  font-size: var(--t-sm); max-width: 62ch; pointer-events: auto;
-}
+/* Panels containing a .layout just step out of grid mode */
+body:has(.layout) .panel.active { display: block; }
 
-/* Mobile: collapse sidenav to topbar */
-@media (max-width: 900px) {
-  body { padding: var(--s-3) var(--s-3) var(--s-5); }
-  h1 { position: relative; top: 0; left: 0; width: auto; text-align: center;
-       font-size: var(--t-xl); padding: 0; margin: 0 0 4px; pointer-events: auto; }
-  .subtitle { position: relative; top: 0; left: 0; width: auto;
-       text-align: center; padding: 0; margin: 0 auto var(--s-3); pointer-events: auto; }
-  .tabs {
-    position: relative; left: 0; top: 0; width: 100%;
-    max-height: none; overflow: visible;
-    flex-direction: row; flex-wrap: wrap; justify-content: center;
-    border-radius: var(--r-full); margin: 0 auto var(--s-4);
-  }
-  .tab { width: auto; text-align: center; padding: 7px 14px; border-radius: var(--r-full); }
-  .tab.active::before { display: none; }
+/* Flowchart SVGs fill their card with real breathing room */
+.layout .card { min-height: 0; padding: var(--s-3) var(--s-4); }
+.layout .card > svg,
+.layout .card > .flow-wrap > svg,
+.layout .card .flow-wrap {
+  width: 100%; height: auto; flex: 1;
+  min-height: 340px;
+  max-height: calc(100vh - 160px);
+  display: block;
+}
+.layout .card > svg[viewBox] { height: auto; aspect-ratio: auto; }
+.flow-wrap { overflow: auto; }
+
+@media (max-width: 600px) {
+  body { padding: var(--s-3); }
+  .tabs { gap: 0; padding: 3px; }
+  .tab { padding: 6px 10px; font-size: 12px; }
 }
 
 /* ----------  PANELS / LAYOUT  ---------- */
 /* Tab panels: only hide panels that are siblings of a .tabs element */
-.tabs ~ .panel { display: none; max-width: 1400px; margin: 0 auto; width: 100%; }
+.tabs ~ .panel { display: none; width: 100%; }
+
+/* Default tab panel — 2-column grid of direct .card children */
 .tabs ~ .panel.active {
   display: grid; gap: var(--s-4);
   grid-template-columns: 1.05fr 1fr;
@@ -303,20 +256,30 @@ body:not(:has(.tabs)) .subtitle {
 }
 .tabs ~ .panel.single.active { grid-template-columns: 1fr; }
 
+/* If a panel wraps a .layout, don't make the panel a grid — let .layout drive it */
+.tabs ~ .panel.active:has(> .layout) {
+  display: block;
+}
+
 @media (max-width: 960px) {
   .tabs ~ .panel.active { grid-template-columns: 1fr; }
 }
 
-/* Generic layout grid (3-col: code · flow · vars) — loops, operators, py_to_flowchart */
+/* Generic 3-col layout (flow · code · vars) — loops, operators, py_to_flowchart */
 .layout {
   display: grid; gap: var(--s-4);
-  grid-template-columns: 1fr 1.2fr 320px;
-  max-width: 1500px; margin: 0 auto;
-  min-height: 0;
+  grid-template-columns:
+    minmax(420px, 2.2fr)    /* wide column: flowchart / primary visual */
+    minmax(300px, 1fr)      /* middle: code or secondary */
+    minmax(240px, 290px);   /* narrow: vars / controls */
+  min-height: 0; width: 100%;
   animation: enter .5s var(--e-out) both;
 }
-@media (max-width: 1100px) { .layout { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 760px)  { .layout { grid-template-columns: 1fr; } }
+.layout > .card { min-width: 0; }
+@media (max-width: 1280px) { .layout { grid-template-columns: 1.3fr 1fr; }
+                              .layout > .card:nth-child(3) { grid-column: 1 / -1; } }
+@media (max-width: 820px)  { .layout { grid-template-columns: 1fr; }
+                              .layout > .card:nth-child(3) { grid-column: auto; } }
 
 /* process_states structural containers */
 .container {
@@ -377,9 +340,13 @@ svg.flow { width: 100%; flex: 1; min-height: 0; display: block;
   border: 1px solid var(--line); border-radius: var(--r-md); }
 
 /* ---------- LINUX NETWORK helpers ---------- */
-.layout.three { display: grid; gap: var(--s-4); grid-template-columns: 1.3fr 1fr 1fr;
-  max-width: 1500px; margin: 0 auto; }
-@media (max-width: 1100px) { .layout.three { grid-template-columns: 1fr 1fr; } }
+.layout.three {
+  display: grid; gap: var(--s-4);
+  grid-template-columns: minmax(280px, 1.3fr) minmax(240px, 1fr) minmax(240px, 1fr);
+  width: 100%; min-height: 0;
+}
+.layout.three > .card { min-width: 0; }
+@media (max-width: 1200px) { .layout.three { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 760px)  { .layout.three { grid-template-columns: 1fr; } }
 
 svg.diag {
@@ -916,10 +883,55 @@ table.tbl tr.hl td { background: rgba(255,107,44,.08); color: var(--accent-hi); 
 .vzone.dim   { opacity: .35; }
 .vzone.glow  { box-shadow: 0 0 0 2px rgba(255,201,74,.25); background: color-mix(in srgb, var(--gold) 5%, var(--bg-1)); }
 
-.venn-preview { width: 100%; max-width: 400px; height: 170px; margin: 0 auto; }
-.venn-preview svg { width: 100%; height: 100%; }
-.venn-preview .zone { fill-opacity: .2; transition: fill-opacity var(--d-med); }
-.venn-preview .zone.on { fill-opacity: .55; }
+.venn-preview {
+  position: relative;
+  width: 100%; max-width: 340px; margin: 0 auto;
+  padding: var(--s-2);
+  border-radius: var(--r-md);
+  background:
+    radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--accent) 5%, transparent), transparent 70%),
+    linear-gradient(180deg, var(--bg-2), var(--bg));
+  border: 1px solid var(--line);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.04),
+    0 18px 34px -22px rgba(0,0,0,.55);
+  overflow: hidden;
+}
+.venn-preview::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 20% 10%, rgba(255,255,255,.04), transparent 45%);
+  pointer-events: none;
+}
+.venn-preview svg {
+  display: block; width: 100%; height: auto;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,.35));
+}
+.venn-preview .vreg {
+  fill-opacity: .06;
+  transition: fill-opacity var(--d-slow) var(--e),
+              filter var(--d-slow) var(--e);
+}
+.venn-preview .vreg.on {
+  fill-opacity: .92;
+  filter: url(#venn-glow) drop-shadow(0 0 6px currentColor);
+}
+.venn-preview .venn-lbl {
+  font-family: var(--f-display);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: -.02em;
+}
+.venn-preview .venn-sub {
+  font-family: var(--f-body);
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  fill: var(--fg-3);
+  opacity: .7;
+}
 
 /* ----------  LETTERS (FREQUENCY)  ---------- */
 .letters-row { display: flex; gap: 6px; flex-wrap: wrap; margin: var(--s-2) 0; }
@@ -1456,11 +1468,78 @@ svg.flow, .card svg {
     <h3>Visual zones</h3>
     <p style="font-size:12px;color:#8fa3bd;margin-top:0">Items sit in the zone they belong to. Zones that contribute to the current operation <b>glow gold</b>.</p>
     <div class="venn-preview">
-      <svg viewBox="0 0 380 180" preserveAspectRatio="xMidYMid meet">
-        <ellipse class="zone" id="vPrevA" cx="140" cy="90" rx="110" ry="75" fill="#06b6d4" stroke="#06b6d4" stroke-width="2"/>
-        <ellipse class="zone" id="vPrevB" cx="240" cy="90" rx="110" ry="75" fill="#c084fc" stroke="#c084fc" stroke-width="2"/>
-        <text x="55"  y="28" fill="#06b6d4" font-weight="800" font-size="18" font-family="JetBrains Mono">A</text>
-        <text x="320" y="28" fill="#c084fc" font-weight="800" font-size="18" font-family="JetBrains Mono">B</text>
+      <svg viewBox="0 0 460 240" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <!-- subtle graph-paper dots -->
+          <pattern id="venn-dots" x="0" y="0" width="18" height="18" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r=".8" fill="currentColor" opacity=".18"/>
+          </pattern>
+
+          <!-- radial gradients for premium fills -->
+          <radialGradient id="g-onlyA" cx="30%" cy="40%" r="75%">
+            <stop offset="0%"  stop-color="#67e8f9" stop-opacity="1"/>
+            <stop offset="55%" stop-color="#22d3ee" stop-opacity=".85"/>
+            <stop offset="100%" stop-color="#0891b2" stop-opacity=".35"/>
+          </radialGradient>
+          <radialGradient id="g-onlyB" cx="70%" cy="40%" r="75%">
+            <stop offset="0%"  stop-color="#f0abfc" stop-opacity="1"/>
+            <stop offset="55%" stop-color="#e879f9" stop-opacity=".85"/>
+            <stop offset="100%" stop-color="#a21caf" stop-opacity=".35"/>
+          </radialGradient>
+          <radialGradient id="g-inter" cx="50%" cy="50%" r="60%">
+            <stop offset="0%"  stop-color="#fef08a" stop-opacity="1"/>
+            <stop offset="60%" stop-color="#facc15" stop-opacity=".9"/>
+            <stop offset="100%" stop-color="#b45309" stop-opacity=".4"/>
+          </radialGradient>
+
+          <!-- soft glow for active regions -->
+          <filter id="venn-glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3.2" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+
+          <clipPath id="clip-A"><ellipse cx="175" cy="120" rx="135" ry="92"/></clipPath>
+          <!-- only-A region: inside A, outside B -->
+          <mask id="m-onlyA" maskUnits="userSpaceOnUse">
+            <rect width="460" height="240" fill="black"/>
+            <ellipse cx="175" cy="120" rx="135" ry="92" fill="white"/>
+            <ellipse cx="295" cy="120" rx="135" ry="92" fill="black"/>
+          </mask>
+          <!-- only-B region: inside B, outside A -->
+          <mask id="m-onlyB" maskUnits="userSpaceOnUse">
+            <rect width="460" height="240" fill="black"/>
+            <ellipse cx="295" cy="120" rx="135" ry="92" fill="white"/>
+            <ellipse cx="175" cy="120" rx="135" ry="92" fill="black"/>
+          </mask>
+        </defs>
+
+        <!-- graph-paper background inside circles -->
+        <g color="#64748b">
+          <ellipse cx="175" cy="120" rx="135" ry="92" fill="url(#venn-dots)"/>
+          <ellipse cx="295" cy="120" rx="135" ry="92" fill="url(#venn-dots)"/>
+        </g>
+
+        <!-- three independently-fillable regions with gradients + glow -->
+        <rect id="vRegOnlyA" class="vreg" width="460" height="240"
+              mask="url(#m-onlyA)" fill="url(#g-onlyA)"/>
+        <rect id="vRegOnlyB" class="vreg" width="460" height="240"
+              mask="url(#m-onlyB)" fill="url(#g-onlyB)"/>
+        <ellipse id="vRegInter" class="vreg"
+                 cx="295" cy="120" rx="135" ry="92"
+                 clip-path="url(#clip-A)" fill="url(#g-inter)"/>
+
+        <!-- outlines (always visible, hair-thin) -->
+        <ellipse cx="175" cy="120" rx="135" ry="92" fill="none"
+                 stroke="#22d3ee" stroke-width="1.2" stroke-opacity=".7"/>
+        <ellipse cx="295" cy="120" rx="135" ry="92" fill="none"
+                 stroke="#e879f9" stroke-width="1.2" stroke-opacity=".7"/>
+
+        <!-- editorial italic labels (Fraunces) -->
+        <text class="venn-lbl" x="55"  y="40" fill="#22d3ee">A</text>
+        <text class="venn-lbl" x="405" y="40" fill="#e879f9">B</text>
+        <!-- faint sub-labels -->
+        <text class="venn-sub" x="55"  y="56">set</text>
+        <text class="venn-sub" x="405" y="56">set</text>
       </svg>
     </div>
     <div class="venn-zones">
@@ -2334,15 +2413,15 @@ function renderZoneItems(id, items, resultSet){
 
 function vDrawZones(parts){
   const on = VZONES[vOp];  // [onlyA, inter, onlyB]
-  const mapZone = { 0:'zoneOnlyA', 1:'zoneInter', 2:'zoneOnlyB' };
+  const mapZone  = { 0:'zoneOnlyA',  1:'zoneInter',  2:'zoneOnlyB'  };
+  const mapPrev  = { 0:'vRegOnlyA',  1:'vRegInter',  2:'vRegOnlyB'  };
   [0,1,2].forEach(i=>{
     const z = document.getElementById(mapZone[i]);
     z.classList.toggle('dim',  !on[i]);
     z.classList.toggle('glow',  on[i]);
+    const r = document.getElementById(mapPrev[i]);
+    if(r) r.classList.toggle('on', on[i]);
   });
-  // venn preview — highlight the whole A / B ellipses if they contribute
-  document.getElementById('vPrevA').classList.toggle('on', on[0] || on[1]);
-  document.getElementById('vPrevB').classList.toggle('on', on[2] || on[1]);
 
   renderZoneItems('itemsOnlyA', [...parts.onlyA], parts.result);
   renderZoneItems('itemsInter', [...parts.inter], parts.result);
